@@ -5,9 +5,11 @@ import m, {
 } from "mithril";
 import Ui from "xbreader/models/Ui";
 import Config from "xbreader/models/Config";
+import Slider from 'xbreader/models/Slider';
 
 export interface SettingsAttrs {
     readonly config: Config;
+    readonly slider: Slider;
     readonly ui: Ui;
 }
 
@@ -63,6 +65,7 @@ export default class Settings implements ClassComponent <SettingsAttrs> {
                 m("button", {
                     onclick: () => {
                         attrs.ui.toggleSettings(false);
+                        attrs.slider.updateSetting();
                     }
                 }, t`Close`)
             ])]

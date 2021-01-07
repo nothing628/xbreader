@@ -239,6 +239,7 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
         if(ui.settingsShown)
             retval.push(m(Settings, {
                 config,
+                slider,
                 ui
             }));
         return retval;

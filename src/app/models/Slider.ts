@@ -105,6 +105,11 @@ export default class Slider {
         this.height = document.documentElement.clientHeight;
     }
 
+    updateSetting() {
+        this.spread = this.config.spread;
+        this.fit = this.config.fit;
+    }
+
     updateProperties(animate: boolean, fast = true) {
         let margin = "0";
         this.updateDimensions();
