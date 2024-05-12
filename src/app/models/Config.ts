@@ -5,6 +5,7 @@ import { canDrawBitmap } from "xbreader/helpers/platform";
 import { drawerFunction } from "xbreader/helpers/lazyLoader";
 import Series from "./Series";
 import Link from "./Link";
+import WorkerPool from "../helpers/workerPool";
 
 export enum XBOptionType {
     Hidden,
@@ -234,6 +235,8 @@ export interface RenderConfig {
     bitmap: boolean;
     onDraw: drawerFunction;
     lok: boolean;
+    worker: Worker | WorkerPool;
+    noContext: boolean;
 }
 
 const BG_TO_FG = new Map<string, string>([
@@ -468,7 +471,8 @@ export default class Config {
             render: {
                 bitmap: canDrawBitmap,
                 onDraw: null, // (loader: any, source: any) => {} When necessary, this function provides DRM and/or custom drawing capabilities
-                lok: false
+                lok: false,
+                noContext: false
             } as RenderConfig,
 
             // Settings provider - only need to implement for global settings

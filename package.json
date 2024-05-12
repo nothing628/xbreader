@@ -1,7 +1,7 @@
 {
   "name": "xbreader",
-  "version": "0.36.3",
-  "description": "Fixed-layout publication reader for the web",
+  "version": "0.37.0",
+  "description": "Comic (and sometimes novel) reader for the web",
   "author": "Henry <chocolatkey@gmail.com>",
   "contributors": [
     "chocolatkey <chocolatkey@gmail.com> (https://chocolatkey.com)"
@@ -28,8 +28,10 @@
   ],
   "keywords": [
     "webpub",
-    "fixed-layout reader",
-    "webpub reader"
+    "divina",
+    "webtoons",
+    "manga",
+    "comics"
   ],
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -59,6 +61,7 @@
     "ttag-cli": "^1.7.28",
     "ttag-webpack-plugin": "^0.1.2",
     "typescript": "^4.9.4",
+    "user-agent-data-types": "^0.4.2",
     "webpack": "^5.75.0",
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^5.0.1",

@@ -206,6 +206,9 @@ export default class LazyLoader {
     private toonLogic = false; // Whether to use "toon logic" to make decisions when loading the image
     private specificWorker = -2;
     private lowOK: boolean;
+    private worker = worker;
+    private workerSupported = workerSupported;
+    private noContext: boolean;
 
     constructor(itemData: Link, publication: Publication, indx: number, renderConfig: RenderConfig, chooseCallback: chooserFunction) {
         this.best = itemData;
@@ -213,6 +216,12 @@ export default class LazyLoader {
         this.toonLogic = publication.isTtb;
         this.lowOK = !!renderConfig.lok;
         this.noblob = itemData.findFlag("noblob");
+
+        if(renderConfig.worker) {
+            this.worker = renderConfig.worker as WorkerPool;
+            this.workerSupported = true; // Force worker support
+        }
+        this.noContext = renderConfig.noContext ? true : false;
 
         this.data = itemData;
         this.index = indx;
@@ -264,7 +273,7 @@ export default class LazyLoader {
         } else if(this.loaded) {
             this.already = true;
             if(this.drawer && this.canvas) {
-                const ctx = this.canvas.getContext("2d", {desynchronized: true}) as CanvasRenderingContext2D;
+                const ctx = this.noContext ? null : this.canvas.getContext("2d", {desynchronized: true}) as CanvasRenderingContext2D;
                 if(ctx)
                     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.canvas.height = this.canvas.width = 0;
@@ -280,7 +289,7 @@ export default class LazyLoader {
         // If still loading image but moved away from it in the meantime
         } else if (this.preloader && !this.loaded) {
             if(workerSupported)
-                worker.postMessage({src: this.href, mode: "CANCEL"}, null, this.specificWorker);
+                this.worker.postMessage({src: this.href, mode: "CANCEL"}, null, this.specificWorker);
             else
                 (this.preloader as HTMLImageElement).src = ""; // Cancels currently loading image
             this.preloader = null; // Reset the preloader
@@ -289,7 +298,7 @@ export default class LazyLoader {
 
     destroy(): void {
         if(this.canvas) this.canvas.height = this.canvas.width = 0;
-        if (!this.loaded && workerSupported) worker.postMessage({src: this.href, mode: "CANCEL"}, [], this.specificWorker);
+        if (!this.loaded && workerSupported) this.worker.postMessage({src: this.href, mode: "CANCEL"}, [], this.specificWorker);
         if(this.blob && this.blob.indexOf("blob:") === 0) URL.revokeObjectURL(this.blob);
     }
 
@@ -326,27 +335,30 @@ export default class LazyLoader {
                 return;
             }
 
-            try {
-                // We *have* to initialize the context for the first time as a bitmaprenderer if we want to use the same context in the future
-                if(this.canDrawBitmap)
-                    dctx = cd.getContext("bitmaprenderer") as ImageBitmapRenderingContext;
-
-                // Fall back to 2d
-                if (!dctx) {
-                    ctx = cd.getContext("2d", {desynchronized: true}) as CanvasRenderingContext2D;
-                } else {
-                    // Or prepare a temporary canvas for 2d drawing
-                    if(offscreenCanvasSupported)
-                        tempCanvas = new OffscreenCanvas(cd.width, cd.height);
-                    else {
-                        tempCanvas = document.createElement("canvas");
-                        tempCanvas.width = cd.width;
-                        tempCanvas.height = cd.height;
+            if(!this.noContext) {
+                try {
+                    // We *have* to initialize the context for the first time as a bitmaprenderer if we want to use the same context in the future
+                    if(this.canDrawBitmap)
+                        dctx = cd.getContext("bitmaprenderer") as ImageBitmapRenderingContext;
+    
+                    // Fall back to 2d
+                    if (!dctx) {
+                        ctx = cd.getContext("2d", {desynchronized: true}) as CanvasRenderingContext2D;
+                    } else {
+                        // Or prepare a temporary canvas for 2d drawing
+                        if(offscreenCanvasSupported)
+                            tempCanvas = new OffscreenCanvas(cd.width, cd.height);
+                        else {
+                            tempCanvas = document.createElement("canvas");
+                            tempCanvas.width = cd.width;
+                            tempCanvas.height = cd.height;
+                        }
+                        // https://bugs.chromium.org/p/chromium/issues/detail?id=1072214#c14
+                        ctx = tempCanvas.getContext("2d", (!sML.UA.Chrome || sML.UA.Chrome[0] >= 83) ? { desynchronized: true } : null) as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
                     }
-                    // https://bugs.chromium.org/p/chromium/issues/detail?id=1072214#c14
-                    ctx = tempCanvas.getContext("2d", (!sML.UA.Chrome || sML.UA.Chrome[0] >= 83) ? { desynchronized: true } : null) as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-                }
-            } catch (error) { console.error(error); }
+                } catch (error) { console.error(error); }
+            }
+
             if(ctx)
                 if(!this.loaded || mel) {
                     ctx.clearRect(0, 0, cd.width, cd.height);
@@ -449,11 +461,11 @@ export default class LazyLoader {
                         reject("No data received from worker!");
                 }
             }
-            worker.addEventListener("message", handler);
+            this.worker.addEventListener("message", handler);
             if(this.data.findFlag("isImage") && !this.data.Properties.Encrypted)
-                this.specificWorker = worker.postMessage({src, mode: "FETCH", modernImage: canWebP, bitmap: this.drawer ? true : false, needRaw: this.data.findSpecial("rawRange") ? this.data.findSpecial("rawRange").Value : false});
+                this.specificWorker = this.worker.postMessage({src, mode: "FETCH", modernImage: canWebP, bitmap: this.drawer ? true : false, needRaw: this.data.findSpecial("rawRange") ? this.data.findSpecial("rawRange").Value : false});
             else
-                this.specificWorker = worker.postMessage({src, mode: "FETCH", type: this.data.TypeLink});
+                this.specificWorker = this.worker.postMessage({src, mode: "FETCH", type: this.data.TypeLink});
         });
     }
 

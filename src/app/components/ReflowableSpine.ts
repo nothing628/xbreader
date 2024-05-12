@@ -30,7 +30,7 @@ function hasTextContent(el: HTMLElement): boolean {
     return el.textContent.trim().length > 0;
 }
 
-const SEPARATE_ELEMENTS = ["IMG", "IMAGE"];
+const SEPARATE_ELEMENTS = ["IMG", "IMAGE", "PICTURE"];
 
 export default class ReflowableSpine implements ClassComponent<ReflowableSpineAttrs> {
     loaded = false;
