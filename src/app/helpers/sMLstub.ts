@@ -51,9 +51,10 @@ class sML {
     Mobile: boolean;
 
     constructor() {
-        const NUAD = navigator.userAgentData, NUA = navigator.userAgent;
+        // userAgentData is experimental feature
+        const NUAD = (navigator as any).userAgentData, NUA = navigator.userAgent;
 
-        const _sV = (V: string | number) => (typeof V === "string" || typeof V === "number") && V ? String(V).replace(/_/g, ".").split(".").map(I => parseInt(I) || 0) : [];
+        const _sV = (V?: string | number) => (typeof V === "string" || typeof V === "number") && V ? String(V).replace(/_/g, ".").split(".").map(I => parseInt(I) || 0) : [];
         const _dV = (Pre="") => {
             if(!Pre) return [];
             const RE = new RegExp("^.*" + Pre + "[ :\\/]?(\\d+([\\._]\\d+)*).*$");
@@ -71,7 +72,7 @@ class sML {
             else if(                  /CrOS/.test(NUA)) OS.ChromeOS = _dV();
             else if(                  /X11;/.test(NUA)) OS.Linux = _dV();
             return OS;
-        })({} as OSFlags); if(NUAD) NUAD.getHighEntropyValues(["architecture", "model", "platform", "platformVersion", "uaFullVersion"]).then(HEUAD => (OS => { const Pf = HEUAD.platform, PfV = HEUAD.platformVersion; if(!Pf || !PfV) return;
+        })({} as OSFlags); if(NUAD) NUAD.getHighEntropyValues(["architecture", "model", "platform", "platformVersion", "uaFullVersion"]).then((HEUAD: any) => (OS => { const Pf = HEUAD.platform, PfV = HEUAD.platformVersion; if(!Pf || !PfV) return;
                 if(         /^i(OS|P(hone|od touch))$/.test(Pf)) OS.iOS = _sV(PfV);
             else if(                      /^iPad(OS)?$/.test(Pf)) OS.iOS = OS.iPadOS = _sV(PfV);
             else if(/^(macOS|(Mac )?OS X|Mac(Intel)?)$/.test(Pf)) document.ontouchend !== undefined ? OS.iOS = OS.iPadOS = _sV() : OS.macOS = _sV(PfV);
@@ -85,7 +86,7 @@ class sML {
         this.Mobile = (this.OS.iOS || this.OS.Android || this.OS.WindowsPhone) ? true : false;
 
         this.UA = ((UA: UAFlags) => { let _OK = false;
-            if(NUAD && Array.isArray(NUAD.brands)) { const BnV = NUAD.brands.reduce((BnV, _) => { BnV[_.brand] = [_.version * 1]; return BnV; }, {});
+            if(NUAD && Array.isArray(NUAD.brands)) { const BnV = NUAD.brands.reduce((BnV: any, _: any) => { BnV[_.brand] = [_.version * 1]; return BnV; }, {});
                     if(BnV["Google Chrome"])  _OK = true, UA.Blink = UA.Chromium = BnV["Chromium"] || [], UA.Chrome = BnV["Google Chrome"];
                 else if(BnV["Microsoft Edge"]) _OK = true, UA.Blink = UA.Chromium = BnV["Chromium"] || [], UA.Edge = BnV["Microsoft Edge"];
                 else if(BnV["Opera"])          _OK = true, UA.Blink = UA.Chromium = BnV["Chromium"] || [], UA.Opera = BnV["Opera"];
