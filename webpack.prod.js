@@ -102,6 +102,9 @@ module.exports = {
         }
     },
     target: "web",
+    stats: {
+        errorDetails: true
+    },
     plugins: [
         new WebpackBar({
             name: "XBReader"

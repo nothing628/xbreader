@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@babel/runtime':
+        specifier: ^7.24.5
+        version: 7.24.5
+      r2-utils-js:
+        specifier: ^1.0.38
+        version: 1.0.38
+      tslib:
+        specifier: ^2.6.2
+        version: 2.6.2
       util:
         specifier: ^0.12.3
         version: 0.12.5
