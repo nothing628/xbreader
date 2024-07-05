@@ -31,14 +31,11 @@ interface InnerItemAttrs {
 export default class ReflowablePage implements ClassComponent<ReflowablePageAttrs> {
 
     private itemHeight: number | string;
-    private oldItemHeight: number | string;
     private itemWidth: number | string;
-    private oldItemWidth: number | string;
     private marginLeft: number;
     private marginRight: number;
     private marginTop: number;
     private iframeWidth = 0;
-    private iframeHeight = 0;
 
     data: Link;
     blank: boolean;

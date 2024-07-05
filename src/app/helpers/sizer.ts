@@ -21,21 +21,30 @@ const WIDTH_ULTRA = 1800;
 // a point of diminishing return due to lag, size, canvas limits on certain
 // browsers etc. For "4K" and higher res, it's better to go with a real app.
 
-const getDimension = (link: ReadiumLink, width: boolean) => width ? (link.Width ? link.Width : 0) : (link.Height ? link.Height : 0);
-const closestResolution = (choices: Link[], ideal: number, width: boolean) => choices.reduce((prev: Link, curr: Link) => Math.abs(getDimension(curr, width) - ideal) < Math.abs(getDimension(prev, width) - ideal) ? curr : prev);
+const getDimension = (link: ReadiumLink, width: boolean) =>
+  width ? (link.Width ? link.Width : 0) : link.Height ? link.Height : 0;
+const closestResolution = (choices: Link[], ideal: number, width: boolean) =>
+  choices.reduce((prev: Link, curr: Link) =>
+    Math.abs(getDimension(curr, width) - ideal) <
+    Math.abs(getDimension(prev, width) - ideal)
+      ? curr
+      : prev
+  );
 
 /**
  * Create an array out of the item and its alternates (assuming alternates aren't nested more than a level down)
  * @param item Manifest item pointing to a page
  */
 function gatherImages(item: Link): Link[] {
-    const allVersions: Link[] = item.Alternates ? item.Alternates.slice(0) : []; // Copy the array!
-    if(!allVersions) return [item];
+  const allVersions: Link[] = item.Alternates ? item.Alternates.slice(0) : []; // Copy the array!
+  if (!allVersions) return [item];
 
-    allVersions.unshift(item); // Insert link itself at beginning for default
+  allVersions.unshift(item); // Insert link itself at beginning for default
 
-    // Only include WebP links if the platform supports WebP images
-    return allVersions.filter(link => (!canWebP && link.TypeLink === "image/webp") ? false : true);
+  // Only include WebP links if the platform supports WebP images
+  return allVersions.filter((link) =>
+    !canWebP && link.TypeLink === "image/webp" ? false : true
+  );
 }
 
 /**
@@ -43,61 +52,65 @@ function gatherImages(item: Link): Link[] {
  * @param item DiViNa manifest item
  */
 export function bestImage(item: Link, toonMode = false, lowok = false): Link {
-    if(!item) return null;
-    if(!item.findFlag("isImage")) return item;
-    const links = gatherImages(item);
-    if(links.length === 1) return item;
+  if (!item) return null;
+  if (!item.findFlag("isImage")) return item;
+  const links = gatherImages(item);
+  if (links.length === 1) return item;
 
-    const ratio = window.devicePixelRatio || 1;
-    let width = false; // Use width (not height) to determine best image
+  const ratio = window.devicePixelRatio || 1;
+  let width = false; // Use width (not height) to determine best image
 
-    if((item.Height / item.Width) > 2) // Very tall image, most likely a toon image
-        toonMode = true;
+  if (item.Height / item.Width > 2)
+    // Very tall image, most likely a toon image
+    toonMode = true;
 
-    let dimension = window.innerHeight * ratio; // Landscape
-    if(toonMode || window.innerHeight > window.innerWidth) { // Portrait or Toon
-        width = true;
-        dimension = window.innerWidth * ratio;
-    }
+  let dimension = window.innerHeight * ratio; // Landscape
+  if (toonMode || window.innerHeight > window.innerWidth) {
+    // Portrait or Toon
+    width = true;
+    dimension = window.innerWidth * ratio;
+  }
 
-    // Don't go above ultra on mobile, might not be possible anyway
-    if(sML.Mobile) dimension = Math.min(dimension, width ? WIDTH_ULTRA : HEIGHT_ULTRA);
+  // Don't go above ultra on mobile, might not be possible anyway
+  if (sML.Mobile)
+    dimension = Math.min(dimension, width ? WIDTH_ULTRA : HEIGHT_ULTRA);
 
-    // Optional network type of device
-    const nType = networkType();
-    switch (nType) {
-        case 1: // Medium network, cap dimension
-            dimension = Math.min(dimension, width ? WIDTH_MEDIUM : HEIGHT_MEDIUM);
-            break;
-        case 2: // Slow network, cap dimension even lower
-            dimension = Math.min(dimension, width ? WIDTH_LOW : HEIGHT_LOW);
-            break;
-    }
+  // Optional network type of device
+  const nType = networkType();
+  switch (nType) {
+    case 1: // Medium network, cap dimension
+      dimension = Math.min(dimension, width ? WIDTH_MEDIUM : HEIGHT_MEDIUM);
+      break;
+    case 2: // Slow network, cap dimension even lower
+      dimension = Math.min(dimension, width ? WIDTH_LOW : HEIGHT_LOW);
+      break;
+  }
 
-    return links.reduce((prev: Link, curr: Link) => {
-        const cDim = getDimension(curr, width);
-        const pDim = getDimension(prev, width);
+  return links.reduce((prev: Link, curr: Link) => {
+    const cDim = getDimension(curr, width);
+    const pDim = getDimension(prev, width);
 
-        if(!lowok)
-            if(!sML.Mobile && nType === 0 && !toonMode) { // If not mobile and on "best" network, try not to go under LOW
-                const lo = (width ? WIDTH_LOW : HEIGHT_LOW) + 25; // 25 accounts for slight aspect ratio variances
-                if(cDim < pDim && cDim <= lo)
-                    return prev;
-                if(pDim < cDim && pDim <= lo)
-                    return curr;
-            }
+    if (!lowok)
+      if (!sML.Mobile && nType === 0 && !toonMode) {
+        // If not mobile and on "best" network, try not to go under LOW
+        const lo = (width ? WIDTH_LOW : HEIGHT_LOW) + 25; // 25 accounts for slight aspect ratio variances
+        if (cDim < pDim && cDim <= lo) return prev;
+        if (pDim < cDim && pDim <= lo) return curr;
+      }
 
-        // Both have equal dimension, but different mimetype, pick WEBP since it tends to be more efficient when supported
-        if(cDim === pDim && curr.TypeLink !== prev.TypeLink && canWebP)
-            if(prev.TypeLink === "image/webp") return prev;
-            else if(curr.TypeLink === "image/webp") return curr;
+    // Both have equal dimension, but different mimetype, pick WEBP since it tends to be more efficient when supported
+    if (cDim === pDim && curr.TypeLink !== prev.TypeLink && canWebP)
+      if (prev.TypeLink === "image/webp") return prev;
+      else if (curr.TypeLink === "image/webp") return curr;
 
+    // Both are larger or smaller than ideal, pick the one closer to the ideal
+    if (
+      (cDim >= dimension && pDim >= dimension) ||
+      (cDim <= dimension && pDim <= dimension)
+    )
+      return closestResolution([prev, curr], dimension, width);
 
-        // Both are larger or smaller than ideal, pick the one closer to the ideal
-        if((cDim >= dimension && pDim >= dimension) || (cDim <= dimension && pDim <= dimension))
-            return closestResolution([prev, curr], dimension, width);
-
-        if(pDim >= dimension) return prev;
-        return curr;
-    });
+    if (pDim >= dimension) return prev;
+    return curr;
+  });
 }
