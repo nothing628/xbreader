@@ -454,7 +454,7 @@ export default class Slider {
               // The fraction check prevents this from messing up scroll detection at beginning
               if (prevFraction > 0) this.binder.ignoreScrollFlag = true;
               this.binder.coordinator.HTML.scrollTop = Math.round(
-                prevFraction * this.selector.getBoundingClientRect().height
+                prevFraction * this.selector!.getBoundingClientRect().height
               );
             }
             this.percentage;

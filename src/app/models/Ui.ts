@@ -22,8 +22,8 @@ export default class Ui {
     maxHeight: 0,
   } as DialogData;
   notifierShown = false;
-  public notification: string;
-  private notifierTimeout: number;
+  public notification: string = "";
+  private notifierTimeout: number = -1;
   mousing = false;
 
   constructor(toggleCallback: Function) {
@@ -54,7 +54,7 @@ export default class Ui {
   }
 
   toggleDialog(newState?: boolean, data?: DialogData) {
-    this.dialogShown = newState;
+    this.dialogShown = newState || false;
     if (data) this.dialogData = data;
   }
 

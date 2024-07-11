@@ -39,10 +39,16 @@ export function parse(str: string) {
     uri: { [index: string]: any } = {};
   let i = 14;
 
-  while (i--) uri[o.key[i]] = m[i] || "";
+  while (i--) {
+    if (m && m[i]) {
+      uri[o.key[i]] = m[i];
+    } else {
+      uri[o.key[i]] = "";
+    }
+  }
 
   uri[o.q.name] = {};
-  uri[o.key[12]].replace(o.q.parser, ($0: string, $1: string, $2: string) => {
+  uri[o.key[12]].replace(o.q.parser, (_$0: string, $1: string, $2: string) => {
     if ($1) uri[o.q.name][$1] = $2;
     return "";
   });

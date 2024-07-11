@@ -33,10 +33,12 @@ const WebPChecker = () => {
 };
 
 export const networkType = () => {
-  // @ts-ignore: Network Information API is experimental
   const connection =
+    // @ts-ignore: Network Information API is experimental
     navigator.connection ||
+    // @ts-ignore
     navigator.mozConnection ||
+    // @ts-ignore
     navigator.webkitConnection;
   if (!connection || !connection.effectiveType)
     // Not supported

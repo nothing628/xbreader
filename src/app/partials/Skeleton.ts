@@ -7,6 +7,8 @@ export interface SkeletonAttrs {
 
 export default {
   view: ({ attrs }: CVnode<SkeletonAttrs>): m.Vnode => {
+    const arr = Array<number>(attrs.perPage);
+
     return m(
       "div.br-skeleton",
       {
@@ -14,7 +16,7 @@ export default {
           "--xb-margin": `${attrs.margin}px`,
         },
       },
-      Array.apply(null, Array(attrs.perPage)).map((n: number) =>
+      arr.map((_val, n: number) =>
         m(
           attrs.perPage > 1 ? ".half" : "",
           {

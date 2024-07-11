@@ -21,7 +21,7 @@ import {
 import Loader from "../partials/Loader";
 
 export interface ReaderAttrs {
-  readonly cid: string;
+  readonly cid: string | null;
   readonly config: XBConfig;
 }
 

@@ -13,8 +13,8 @@ const HEIGHT_LOW = 1280;
 const WIDTH_LOW = 900;
 const HEIGHT_MEDIUM = 1536;
 const WIDTH_MEDIUM = 1080;
-const HEIGHT_HIGH = 2048;
-const WIDTH_HIGH = 1440;
+// const HEIGHT_HIGH = 2048;
+// const WIDTH_HIGH = 1440;
 const HEIGHT_ULTRA = 2560;
 const WIDTH_ULTRA = 1800;
 // Larger than ^ "ultra" is not really feasible on the web, you start to reach
@@ -51,7 +51,7 @@ function gatherImages(item: Link): Link[] {
  * Select the best image to be loaded based on the current reading environment
  * @param item DiViNa manifest item
  */
-export function bestImage(item: Link, toonMode = false, lowok = false): Link {
+export function bestImage(item: Link, toonMode = false, lowok = false): Link | null {
   if (!item) return null;
   if (!item.findFlag("isImage")) return item;
   const links = gatherImages(item);

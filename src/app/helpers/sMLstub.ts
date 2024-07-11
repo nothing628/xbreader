@@ -47,7 +47,7 @@ declare interface UAFlags {
 class sML {
   OS: OSFlags;
   UA: UAFlags;
-  Env: string[];
+  Env: string[] = [];
   Mobile: boolean;
 
   constructor() {
@@ -185,7 +185,7 @@ class sML {
 
     (this.Env as any) = {
       get: () =>
-        [this.OS, this.UA].reduce((Env, OS_UA) => {
+        [this.OS, this.UA].reduce((Env: any[], OS_UA) => {
           for (const Par in OS_UA) if ((OS_UA as any)[Par]) Env.push(Par);
           return Env;
         }, []),

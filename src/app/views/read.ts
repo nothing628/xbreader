@@ -8,7 +8,7 @@ export interface ReadAttrs {
 
 export default class ReadView implements ClassComponent<ReadAttrs> {
   config: XBConfig;
-  cid: string;
+  cid: string | null;
 
   constructor(config: XBConfig) {
     this.config = config;

@@ -19,8 +19,8 @@ export interface ErrorAttrs {
 
 export default class ErrorView implements ClassComponent<ErrorAttrs> {
   private readonly config: XBConfig;
-  private errorCode: number;
-  private errorMessage: string;
+  private errorCode: number = 0;
+  private errorMessage: string = "";
 
   constructor(config: XBConfig) {
     this.config = config;
@@ -52,7 +52,7 @@ export default class ErrorView implements ClassComponent<ErrorAttrs> {
     } else this.errorMessage = t`Unknown error`;
   }
 
-  view({ attrs }: CVnode<ErrorAttrs>) {
+  view({ }: CVnode<ErrorAttrs>) {
     const paddedErrorCode = new String(this.errorCode).padStart(4, "0");
     return [
       m("div.br-error__container", [

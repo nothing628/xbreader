@@ -6,7 +6,7 @@ const MAX_POOL_SIZE = Math.max(
 export default class WorkerPool {
   private readonly pool: Worker[] = [];
   private current = 0;
-  private url: URL;
+  private url?: URL;
   public destroyed = false;
   private size: number;
 
@@ -36,10 +36,14 @@ export default class WorkerPool {
    * Destroy all workers in the pool
    */
   destroy() {
-    while (this.pool.length > 0)
+    while (this.pool.length > 0) {
       // Remove workers from the pool...
-      this.pool.pop().terminate(); //  and terminate them!
-    if (this.url.protocol === "blob:") URL.revokeObjectURL(this.url.href);
+      const pool = this.pool.pop();
+      
+      if (pool) pool.terminate(); //  and terminate them!
+    }
+
+    if (this.url && this.url.protocol === "blob:") URL.revokeObjectURL(this.url.href);
     this.destroyed = true;
   }
 
