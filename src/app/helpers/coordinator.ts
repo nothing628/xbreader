@@ -16,15 +16,15 @@ export enum VerticalThird {
 }
 
 export interface NinthPoint {
-  X: HorizontalThird;
-  Y: VerticalThird;
+  X: HorizontalThird | null;
+  Y: VerticalThird | null;
 }
 
 export interface BibiEvent {
-  Target: EventTarget;
-  Coord: Point;
-  Ratio: Point;
-  Division: NinthPoint;
+  Target: EventTarget | null;
+  Coord: Point | null;
+  Ratio: Point | null;
+  Division: NinthPoint | null;
 }
 
 export default class Coordinator {

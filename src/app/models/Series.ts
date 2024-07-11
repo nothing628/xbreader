@@ -136,21 +136,11 @@ export default class Series {
       else return null;
 
     let selectedVolumeName = null;
-    const select = m(
-      "select#br-chapter",
-      {
-        title: t`Chapter selection`, // TODO somehow incorporate the subtitle
-        onchange: (e: Event) => {
-          const st = e.target as HTMLSelectElement;
-          const sv = decodeURI(
-            (st[st.selectedIndex] as HTMLOptionElement).value
-          );
-          if (sv === this.current?.uuid) return;
-          m.route.set("/:id...", { id: sv }, { replace: false });
-          this.current = this.chapters.find((c) => c.uuid === sv);
-        },
-      },
-      this.volumes.map((volume) => {
+
+    let volumeList: m.Children[] = [];
+
+    if (this.volumes) {
+      volumeList = this.volumes.map((volume) => {
         const chaptersOptions: Vnode[] = [];
         volume.chapters.forEach((chapter) => {
           const isSel = this.isSelected(chapter);
@@ -182,7 +172,24 @@ export default class Series {
             chaptersOptions
           );
         else return chaptersOptions;
-      })
+      });
+    }
+
+    const select = m(
+      "select#br-chapter",
+      {
+        title: t`Chapter selection`, // TODO somehow incorporate the subtitle
+        onchange: (e: Event) => {
+          const st = e.target as HTMLSelectElement;
+          const sv = decodeURI(
+            (st[st.selectedIndex] as HTMLOptionElement).value
+          );
+          if (sv === this.current?.uuid) return;
+          m.route.set("/:id...", { id: sv }, { replace: false });
+          this.current = this.chapters.find((c) => c.uuid === sv);
+        },
+      },
+      volumeList
     );
     return m("span#br-chapter__group", [
       selectedVolumeName

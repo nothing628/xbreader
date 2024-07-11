@@ -248,7 +248,7 @@ const BG_TO_FG = new Map<string, string>([
 
 export default class Config {
   private readonly internalState: XBConfig;
-  settings: XBSetting[];
+  settings: XBSetting[] = [];
 
   private internalAnimateSettingIndex = -2;
   private internalBackgroundSettingIndex = -2;
@@ -269,9 +269,9 @@ export default class Config {
       }
   }
 
-  private loadSettings(): Record<string, string> {
+  private loadSettings(): Record<string, string> | null {
     if (typeof this.state.onSettingsLoad === "function")
-      if (!this.state.onSettingsLoad(__VERSION__)) return;
+      if (!this.state.onSettingsLoad(__VERSION__)) return null;
     try {
       const v = window.localStorage.getItem(STORAGE_KEY);
       if (!v) return null;
@@ -287,7 +287,9 @@ export default class Config {
   }
 
   public setSetting(key: string, value: string | number): void {
-    this.settings.find((s) => s.name === key).value = value;
+    const setting = this.settings.find((s) => s.name === key);
+    
+    if (setting) setting.value = value;
   }
 
   public saveSettings(): boolean {
@@ -353,7 +355,7 @@ export default class Config {
 
   get foreground(): string {
     const fg = BG_TO_FG.get(this.background);
-    if (fg === "") return "#fff";
+    if (!fg) return "#fff";
     return fg;
   }
 
@@ -472,22 +474,22 @@ export default class Config {
         series: null, // Volume/Chapter data
 
         // Callback/Hooks
-        loader: (identifier: string) => {
+        loader: (_identifier: string) => {
           return null;
         }, // Custom loader for the webpub. Can return a URL, WebPub Object or Promise
-        onMount: (reader: Reader) => {}, // As soon as this component is mounted
-        onPublicationLoad: (reader: Reader) => {}, // Right after the publication is fully loaded
-        onBeforeReady: (reader: Reader) => {}, // Right before final preparations are carried out
-        onReady: (reader: Reader) => {}, // When redrawing has finished
+        onMount: (_reader: Reader) => {}, // As soon as this component is mounted
+        onPublicationLoad: (_reader: Reader) => {}, // Right after the publication is fully loaded
+        onBeforeReady: (_reader: Reader) => {}, // Right before final preparations are carried out
+        onReady: (_reader: Reader) => {}, // When redrawing has finished
         onPageChange: (
-          pnum: number,
-          direction: string,
-          isSpread: boolean
+          _pnum: number,
+          _direction: string,
+          _isSpread: boolean
         ) => {}, // When page is changed
-        onLastPage: (series: Series, pnum: number) => true, // When trying to go further after the last page. If returns true, auto-advance
+        onLastPage: (_series: Series, _pnum: number) => true, // When trying to go further after the last page. If returns true, auto-advance
         onToggleInterface: () => {}, // When interface is shown/hidden
 
-        onSource: (link: Link) => false, // Link When you want to overrride the logic choosing the appropriate link object or inject/modify links
+        onSource: (_link: Link) => false, // Link When you want to overrride the logic choosing the appropriate link object or inject/modify links
         onDrew: null, // TODO
         onError: null, // (TODO)
         render: {
@@ -495,7 +497,7 @@ export default class Config {
           onDraw: null, // (loader: any, source: any) => {} When necessary, this function provides DRM and/or custom drawing capabilities
           lok: false,
           noContext: false,
-        } as RenderConfig,
+        } as unknown as RenderConfig,
 
         // Settings provider - only need to implement for global settings
         // Could be localstorage, cookie, a server backend, whatever. Up to the developer. If not specified, is localstorage object

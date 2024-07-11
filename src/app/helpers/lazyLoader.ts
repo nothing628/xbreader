@@ -85,10 +85,8 @@ if (workerSupported) {
           xhr.open("GET", src, true);
           // xhr.setRequestHeader("Content-Type", "image/*"); would preflight request, which is unecessary for pub resources
           if (e.data.modernImage)
-            xhr.setRequestHeader(
-              "Accept",
-              "image/webp,image/*,*/*;q=0.8"
-            ); // Support WebP where available
+            xhr.setRequestHeader("Accept", "image/webp,image/*,*/*;q=0.8");
+          // Support WebP where available
           else
             xhr.setRequestHeader("Accept", e.data.type + ",image/*,*/*;q=0.8");
           xhr.responseType = "blob";
@@ -226,8 +224,8 @@ export default class LazyLoader {
   private loaded = false;
   public reloader = true;
   private already = false;
-  private blob: string = null;
-  public readonly drawer: drawerFunction;
+  private blob: string | null = null;
+  public readonly drawer: drawerFunction | null;
   public readonly canDrawBitmap: boolean;
   private canvas: HTMLCanvasElement;
   private element: LoadableElement;
@@ -378,7 +376,7 @@ export default class LazyLoader {
       const cd = mel ? (this.element as HTMLCanvasElement) : this.canvas;
       if (!cd || cd instanceof HTMLImageElement) return;
       let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-      let tempCanvas: HTMLCanvasElement | OffscreenCanvas;
+      let tempCanvas: HTMLCanvasElement | OffscreenCanvas | null = null;
       let dctx: ImageBitmapRenderingContext;
 
       if (
@@ -504,7 +502,7 @@ export default class LazyLoader {
     requestAnimationFrame(() => this.drawAsSoon());
   }
 
-  static drawBitmap(loader: LazyLoader, source: ImageBitmap, blob?: string) {
+  static drawBitmap(loader: LazyLoader, source: ImageBitmap, _blob?: string) {
     const c = loader.canvas;
     c.height = source.height;
     c.width = source.width;
@@ -529,32 +527,33 @@ export default class LazyLoader {
   }
 
   private lazyWorker(src: string) {
-    return new Promise((resolve: Function, reject: Function) => {
-      function handler(e: MessageEvent) {
-        if (e.data.src === src) {
+    return new Promise<any[]>((resolve: Function, reject: Function) => {
+      function handler(e: Event) {
+        const messageEvent = e as MessageEvent;
+        if (messageEvent.data.src === src) {
           (e.target as Worker).removeEventListener("message", handler);
-          if (e.data.error) {
-            reject(new Error(e.data.error));
+          if (messageEvent.data.error) {
+            reject(new Error(messageEvent.data.error));
           }
-          if (e.data.bitmap)
-            if (e.data.url) resolve([e.data.bitmap, e.data.url]);
-            else resolve([e.data.bitmap]);
-          else if (e.data.url) resolve([e.data.url]);
+          if (messageEvent.data.bitmap)
+            if (messageEvent.data.url) resolve([messageEvent.data.bitmap, messageEvent.data.url]);
+            else resolve([messageEvent.data.bitmap]);
+          else if (messageEvent.data.url) resolve([messageEvent.data.url]);
           else reject("No data received from worker!");
         }
       }
       this.worker.addEventListener("message", handler);
-      if (this.data.findFlag("isImage") && !this.data.Properties.Encrypted)
+      if (this.data.findFlag("isImage") && !this.data.Properties.Encrypted) {
+        const rawRange = this.data.findSpecial("rawRange");
+
         this.specificWorker = this.worker.postMessage({
           src,
           mode: "FETCH",
           modernImage: canWebP,
           bitmap: this.drawer ? true : false,
-          needRaw: this.data.findSpecial("rawRange")
-            ? this.data.findSpecial("rawRange").Value
-            : false,
+          needRaw: rawRange ? rawRange.Value : false,
         });
-      else
+      } else
         this.specificWorker = this.worker.postMessage({
           src,
           mode: "FETCH",
@@ -647,7 +646,7 @@ export default class LazyLoader {
     }
   }
 
-  private get preloaded() {
-    return this.loaded && this.preloader;
-  }
+  // private get preloaded() {
+  //   return this.loaded && this.preloader;
+  // }
 }
