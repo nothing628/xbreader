@@ -27,7 +27,8 @@ function getContentholder(el: HTMLElement): Element {
 }
 
 function hasTextContent(el: HTMLElement): boolean {
-  return el.textContent.trim().length > 0;
+  if (el.textContent) return el.textContent.trim().length > 0;
+  return false;
 }
 
 const SEPARATE_ELEMENTS = ["IMG", "IMAGE", "PICTURE"];
@@ -113,7 +114,7 @@ export default class ReflowableSpine
                   } else reject(new Error("No data received from worker!"));
                 }
               };
-              worker.addEventListener("message", handler);
+              worker.addEventListener("message", handler as EventListener);
               worker.postMessage({
                 src: link.Href,
                 mode: "FETCH",

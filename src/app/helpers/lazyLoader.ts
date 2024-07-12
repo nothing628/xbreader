@@ -229,10 +229,10 @@ export default class LazyLoader {
   public readonly drawer: drawerFunction | null;
   public readonly canDrawBitmap: boolean;
   private canvas: HTMLCanvasElement;
-  private element: LoadableElement;
+  private element?: LoadableElement;
   private highTime: number = -1;
-  private preloader: HTMLImageElement | Record<string, any> | null;
-  private drawT: number;
+  private preloader: HTMLImageElement | Record<string, any> | null = null;
+  private drawT: number = -1;
   private readonly chooser: chooserFunction | null;
   private toonLogic = false; // Whether to use "toon logic" to make decisions when loading the image
   private specificWorker = -2;
@@ -264,6 +264,7 @@ export default class LazyLoader {
     this.index = indx;
     this.chooser = chooseCallback ? chooseCallback : null;
 
+    this.canvas = document.createElement("canvas");
     this.drawer =
       canDrawBitmap && workerSupported && !this.toonLogic
         ? LazyLoader.drawBitmap

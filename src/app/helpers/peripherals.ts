@@ -935,17 +935,19 @@ export default class Peripherals {
     this.mousePos = this.coordinator.getBibiEvent(event);
     if (this.slider.ttb) {
       // Vertical controls
-      switch (this.mousePos.Division.Y) {
-        case VerticalThird.Bottom:
-          this.moveBy(1);
-          break;
-        case VerticalThird.Top:
-          this.moveBy(-1);
-          break;
-        case VerticalThird.Middle:
-          this.ui.toggle();
-          m.redraw();
-          break;
+      if (this.mousePos.Division) {
+        switch (this.mousePos.Division.Y) {
+          case VerticalThird.Bottom:
+            this.moveBy(1);
+            break;
+          case VerticalThird.Top:
+            this.moveBy(-1);
+            break;
+          case VerticalThird.Middle:
+            this.ui.toggle();
+            m.redraw();
+            break;
+        }
       }
       this.cursorHandler();
     } else {

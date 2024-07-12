@@ -188,7 +188,7 @@ export default class Slider {
     if (this.single || this.ttb || this.reflowable) return this.currentSlide;
     const spread = this.navigator.currentSpread(this);
     return (
-      (spread && this.publication.Spine.indexOf(spread[spread.length - 1])) ||
+      (spread && this.publication.Spine!.indexOf(spread[spread.length - 1])) ||
       this.currentSlide
     );
   }
@@ -197,7 +197,7 @@ export default class Slider {
     if (this.single || this.ttb || this.reflowable) return this.currentSlide;
     const spread = this.navigator.currentSpread(this);
     return (
-      (spread && this.publication.Spine.indexOf(spread[0])) || this.currentSlide
+      (spread && this.publication.Spine!.indexOf(spread[0])) || this.currentSlide
     );
   }
 
@@ -213,7 +213,7 @@ export default class Slider {
 
   get slength() {
     if (this.reflowable) return this.rlength * this.perPage;
-    return this.publication.spine.length;
+    return this.publication.spine!.length;
   }
 
   get direction() {
