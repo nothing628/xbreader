@@ -997,8 +997,8 @@ export default class Peripherals {
     this.slider.zoomer.scale = this.isScaled ? 1 : 2;
     if (this.isScaled)
       this.slider.zoomer.translate = {
-        X: BibiEvent.Coord.X,
-        Y: BibiEvent.Coord.Y,
+        X: BibiEvent.Coord!.X,
+        Y: BibiEvent.Coord!.Y,
       };
     /*else
             this.slider.zoomer.translate = {
@@ -1116,7 +1116,7 @@ export default class Peripherals {
     }, 192);
   }
 
-  onscroll(Eve: Event) {
+  onscroll(_Eve: Event) {
     if (this.ignoreScrollFlag) {
       this.ignoreScrollFlag = false;
       return false;

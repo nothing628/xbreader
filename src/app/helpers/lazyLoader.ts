@@ -230,9 +230,9 @@ export default class LazyLoader {
   private canvas: HTMLCanvasElement;
   private element: LoadableElement;
   private highTime: number;
-  private preloader: HTMLImageElement | Record<string, any>;
+  private preloader: HTMLImageElement | Record<string, any> | null;
   private drawT: number;
-  private readonly chooser?: chooserFunction;
+  private readonly chooser: chooserFunction | null;
   private toonLogic = false; // Whether to use "toon logic" to make decisions when loading the image
   private specificWorker = -2;
   private lowOK: boolean;
@@ -245,7 +245,7 @@ export default class LazyLoader {
     publication: Publication,
     indx: number,
     renderConfig: RenderConfig,
-    chooseCallback: chooserFunction
+    chooseCallback?: chooserFunction
   ) {
     this.best = itemData;
     this.href = itemData.Href;
@@ -282,12 +282,12 @@ export default class LazyLoader {
   }
 
   get source() {
-    let best: Link;
-    if (this.chooser !== null)
+    let best: Link | null = null;
+    if (this.chooser)
       // Give custom func a chance to choose the best link
       best = this.chooser(this.data);
     if (!best) best = bestImage(this.data, this.toonLogic, this.lowOK);
-    if (best !== this.best) {
+    if (best && best !== this.best) {
       this.best = best;
       this.href = best.Href;
     }
@@ -337,7 +337,7 @@ export default class LazyLoader {
       if (workerSupported)
         this.worker.postMessage(
           { src: this.href, mode: "CANCEL" },
-          null,
+          undefined,
           this.specificWorker
         );
       else (this.preloader as HTMLImageElement).src = ""; // Cancels currently loading image
@@ -357,7 +357,7 @@ export default class LazyLoader {
       URL.revokeObjectURL(this.blob);
   }
 
-  private toBlob(type?: string, quality?: number) {
+  private toBlob(_type?: string, _quality?: number) {
     if (this.loaded) return;
     if (this.blob?.indexOf("data:") === 0) {
       (this.element as HTMLImageElement).src = this.blob;
@@ -375,9 +375,9 @@ export default class LazyLoader {
     this.drawT = requestAnimationFrame(() => {
       const cd = mel ? (this.element as HTMLCanvasElement) : this.canvas;
       if (!cd || cd instanceof HTMLImageElement) return;
-      let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+      let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
       let tempCanvas: HTMLCanvasElement | OffscreenCanvas | null = null;
-      let dctx: ImageBitmapRenderingContext;
+      let dctx: ImageBitmapRenderingContext | null = null;
 
       if (
         this.element instanceof HTMLImageElement &&
@@ -450,12 +450,12 @@ export default class LazyLoader {
             const infoString = `${__NAME__} ${__VERSION__} → ${fnnq}`;
             ctx.fillText(infoString, cd.width / 2, cd.height - 20);
           }
-          if (dctx && (!this.loaded || mel)) {
+          if (dctx && (!this.loaded || mel) && tempCanvas) {
             // Needs to be transferred to the real canvas
             createImageBitmap(tempCanvas).then((ib: ImageBitmap) => {
               if (!this.loaded || mel) dctx.transferFromImageBitmap(ib);
               ib.close();
-              tempCanvas.width = tempCanvas.height = 0;
+              tempCanvas!.width = tempCanvas!.height = 0;
               tempCanvas = null;
               this.drawAsSoon(mel);
             });
@@ -502,7 +502,7 @@ export default class LazyLoader {
     requestAnimationFrame(() => this.drawAsSoon());
   }
 
-  static drawBitmap(loader: LazyLoader, source: ImageBitmap, _blob?: string) {
+  static drawBitmap(loader: LazyLoader, source: ImageBitmap | string, _blob?: string) {
     const c = loader.canvas;
     c.height = source.height;
     c.width = source.width;
@@ -622,7 +622,7 @@ export default class LazyLoader {
           if (this.drawer)
             this.drawer(
               this,
-              params[0] as string,
+              params[0] as string,     // This will be a problem, sometimes lazy worker return url as image bitmap
               params.length > 1 ? (params[1] as string) : undefined
             );
           else {

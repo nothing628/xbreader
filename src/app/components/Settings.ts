@@ -62,7 +62,7 @@ export default class Settings implements ClassComponent<SettingsAttrs> {
                           setting.value === option.value ? "checked" : null,
                         tabindex: setting.value === option.value ? "0" : "-1",
                         id: "xbsetting-" + setting.name + "-" + oval(option),
-                        onchange: (e: MithrilEvent) => {
+                        onchange: () => {
                           attrs.config.setSetting(setting.name, option.value);
                           if (attrs.config.saveSettings())
                             attrs.ui.notify(t`Settings saved!`);
@@ -116,7 +116,50 @@ export default class Settings implements ClassComponent<SettingsAttrs> {
                   ),
                 ]);
               case XBOptionType.Spinner:
-              case XBOptionType.SpinnerPercentage:
+              case XBOptionType.SpinnerPercentage: {
+                const onNegativeClick = () => {
+                  const stepValue = setting.options.find(
+                    (o) => o.label === XBOptionTypeSpinnerOptions.STEP
+                  );
+                  const minimumValue = setting.options.find(
+                    (o) => o.label === XBOptionTypeSpinnerOptions.MIN
+                  );
+                  (setting.value as number) -= stepValue
+                    ? (stepValue.value as number)
+                    : 0.1;
+                  const minimum = minimumValue
+                    ? (minimumValue.value as number)
+                    : -Infinity;
+                  if ((setting.value as number) < minimum) {
+                    setting.value = minimum;
+                    return;
+                  }
+                  if (attrs.config.saveSettings())
+                    attrs.ui.notify(t`Settings saved!`);
+                  else attrs.ui.notify(t`Failed saving settings`);
+                };
+
+                const onPositiveClick = () => {
+                  const stepValue = setting.options.find(
+                    (o) => o.label === XBOptionTypeSpinnerOptions.STEP
+                  );
+                  const maximumValue = setting.options.find(
+                    (o) => o.label === XBOptionTypeSpinnerOptions.MAX
+                  );
+                  (setting.value as number) += stepValue
+                    ? (stepValue.value as number)
+                    : 0.1;
+                  const maximum = maximumValue
+                    ? (maximumValue.value as number)
+                    : Infinity;
+                  if ((setting.value as number) > maximum) {
+                    setting.value = maximum;
+                    return;
+                  }
+                  if (attrs.config.saveSettings())
+                    attrs.ui.notify(t`Settings saved!`);
+                  else attrs.ui.notify(t`Failed saving settings`);
+                };
                 return m("div.br-form__input", [
                   m(
                     "div.br-form__input-label" +
@@ -137,23 +180,7 @@ export default class Settings implements ClassComponent<SettingsAttrs> {
                       "button.br-form__input-spinner.negative",
                       {
                         type: "button",
-                        onclick: () => {
-                          (setting.value as number) -=
-                            (setting.options.find(
-                              (o) => o.label === XBOptionTypeSpinnerOptions.STEP
-                            ).value as number) ?? 0.1;
-                          const minimum =
-                            (setting.options.find(
-                              (o) => o.label === XBOptionTypeSpinnerOptions.MIN
-                            ).value as number) ?? -Infinity;
-                          if (setting.value < minimum) {
-                            setting.value = minimum;
-                            return;
-                          }
-                          if (attrs.config.saveSettings())
-                            attrs.ui.notify(t`Settings saved!`);
-                          else attrs.ui.notify(t`Failed saving settings`);
-                        },
+                        onclick: onNegativeClick,
                       },
                       negative
                     ),
@@ -161,28 +188,13 @@ export default class Settings implements ClassComponent<SettingsAttrs> {
                       "button.br-form__input-spinner.positive",
                       {
                         type: "button",
-                        onclick: () => {
-                          (setting.value as number) +=
-                            (setting.options.find(
-                              (o) => o.label === XBOptionTypeSpinnerOptions.STEP
-                            ).value as number) ?? 0.1;
-                          const maximum =
-                            (setting.options.find(
-                              (o) => o.label === XBOptionTypeSpinnerOptions.MAX
-                            ).value as number) ?? Infinity;
-                          if (setting.value > maximum) {
-                            setting.value = maximum;
-                            return;
-                          }
-                          if (attrs.config.saveSettings())
-                            attrs.ui.notify(t`Settings saved!`);
-                          else attrs.ui.notify(t`Failed saving settings`);
-                        },
+                        onclick: onPositiveClick,
                       },
                       positive
                     ),
                   ]),
                 ]);
+              }
             }
           })
         ),

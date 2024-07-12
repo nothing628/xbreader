@@ -398,7 +398,11 @@ export default class Slider {
 
   get selector() {
     if (this.br_spine) return this.br_spine;
-    this.br_spine = document.getElementById("br-spine");
+    const br_spine = document.getElementById("br-spine");
+
+    if (br_spine) {
+      this.br_spine = br_spine; 
+    }
     if (!this.br_spine) return null;
     return this.br_spine;
   }

@@ -8,12 +8,11 @@ const spacer = "›";
 export default class Series {
   private readonly publication: Publication;
   private readonly metadata: Contributor[];
-  private readonly chapters: XBChapter[] | null;
-  private readonly volumes: XBVolume[] | null;
-  private autoSelect: string = null;
+  private readonly chapters: XBChapter[] | null = null;
+  private readonly volumes: XBVolume[] | null = null;
+  private autoSelect: string | null = null;
 
   constructor(publication: Publication, series: XBVolume[]) {
-    if (!publication) return;
     this.publication = publication;
     const pvols = publication.findSpecial("volumes");
     this.volumes = series ? series : pvols ? pvols.Value : [];
@@ -43,7 +42,7 @@ export default class Series {
    * Has a series been passed to XBReader
    */
   get exists() {
-    return this.volumes?.length > 0 || this.firstSeries !== null;
+    return (this.volumes && this.volumes.length > 0) || this.firstSeries !== null;
   }
 
   get isSolo() {
@@ -54,28 +53,32 @@ export default class Series {
     if (!this.exists) return [];
     const chapters: XBChapter[] = [];
     let alreadySelected = false;
-    this.volumes.forEach((volume) => {
-      volume.chapters.forEach((chapter) => {
-        if (chapter.selected)
-          if (alreadySelected)
-            console.warn("More than one 'selected' item in series!");
-          else alreadySelected = true;
-        chapters.push(chapter);
+    if (this.volumes) {
+      this.volumes.forEach((volume) => {
+        volume.chapters.forEach((chapter) => {
+          if (chapter.selected)
+            if (alreadySelected)
+              console.warn("More than one 'selected' item in series!");
+            else alreadySelected = true;
+          chapters.push(chapter);
+        });
       });
-    });
+    }
     return chapters;
   }
 
   /**
    * Get the current chapter's UUID
    */
-  get current(): XBChapter {
-    for (let i = 0; i < this.chapters.length; i++) {
-      const currChapter = this.chapters[i];
-      if (this.isSelected(currChapter)) return currChapter;
-      if (!this.autoSelect && currChapter.uuid === this.publication.uuid) {
-        this.autoSelect = currChapter.uuid;
-        return currChapter;
+  get current(): XBChapter | null {
+    if (this.chapters) {
+      for (let i = 0; i < this.chapters.length; i++) {
+        const currChapter = this.chapters[i];
+        if (this.isSelected(currChapter)) return currChapter;
+        if (!this.autoSelect && currChapter.uuid === this.publication.uuid) {
+          this.autoSelect = currChapter.uuid;
+          return currChapter;
+        }
       }
     }
     return null;
@@ -186,7 +189,12 @@ export default class Series {
           );
           if (sv === this.current?.uuid) return;
           m.route.set("/:id...", { id: sv }, { replace: false });
-          this.current = this.chapters.find((c) => c.uuid === sv);
+
+          if (this.chapters) {
+            const chapter = this.chapters.find((c) => c.uuid === sv);
+
+            if (chapter) this.current = chapter;
+          }
         },
       },
       volumeList
