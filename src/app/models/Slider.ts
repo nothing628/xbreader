@@ -259,12 +259,14 @@ export default class Slider {
   }
 
   outsidePageNumber() {
-    return this.toonflowable
-      ? Math.round(this.percentage * 100) / 100
-      : !this.single && !this.ttb && !this.reflowable
-      ? this.navigator.currentSpread(this)[0].findSpecial("number").Value ??
-        this.currentSlide + (this.single ? 1 : 0)
-      : this.currentSlide + (this.single ? 1 : 0);
+    if (this.toonflowable) return Math.round(this.percentage * 100) / 100
+    if (!this.single && !this.ttb && !this.reflowable) {
+      const slideNumber = this.navigator.currentSpread(this)[0].findSpecial("number");
+
+      if (slideNumber) return slideNumber.Value
+    }
+
+    return this.currentSlide + (this.single ? 1 : 0);
   }
 
   onChange() {

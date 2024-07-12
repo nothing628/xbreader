@@ -956,16 +956,19 @@ export default class Peripherals {
       const prev = this.slider.rtl
         ? HorizontalThird.Right
         : HorizontalThird.Left;
-      switch (this.mousePos.Division.X) {
-        case next:
-          this.moveBy(1);
-          break;
-        case prev:
-          this.moveBy(-1);
-          break;
-        case HorizontalThird.Center:
-          this.delayedToggle();
-          break;
+
+      if (this.mousePos.Division) {
+        switch (this.mousePos.Division.X) {
+          case next:
+            this.moveBy(1);
+            break;
+          case prev:
+            this.moveBy(-1);
+            break;
+          case HorizontalThird.Center:
+            this.delayedToggle();
+            break;
+        }
       }
     }
 

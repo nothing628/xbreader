@@ -2,6 +2,7 @@ import { t } from "ttag";
 import Link from "xbreader/models/Link";
 import { CVnodeDOM } from "mithril";
 import WorkerPool from "./workerPool";
+import {convertUrlToImageBitmap} from './utils'
 import m from "mithril";
 import { canDrawBitmap, canWebP } from "./platform";
 import { bestImage } from "./sizer";
@@ -229,7 +230,7 @@ export default class LazyLoader {
   public readonly canDrawBitmap: boolean;
   private canvas: HTMLCanvasElement;
   private element: LoadableElement;
-  private highTime: number;
+  private highTime: number = -1;
   private preloader: HTMLImageElement | Record<string, any> | null;
   private drawT: number;
   private readonly chooser: chooserFunction | null;
@@ -237,7 +238,7 @@ export default class LazyLoader {
   private specificWorker = -2;
   private lowOK: boolean;
   private worker = worker;
-  private workerSupported = workerSupported;
+  // private workerSupported = workerSupported;
   private noContext: boolean;
 
   constructor(
@@ -255,7 +256,7 @@ export default class LazyLoader {
 
     if (renderConfig.worker) {
       this.worker = renderConfig.worker as WorkerPool;
-      this.workerSupported = true; // Force worker support
+      // this.workerSupported = true; // Force worker support
     }
     this.noContext = renderConfig.noContext ? true : false;
 
@@ -502,10 +503,18 @@ export default class LazyLoader {
     requestAnimationFrame(() => this.drawAsSoon());
   }
 
-  static drawBitmap(loader: LazyLoader, source: ImageBitmap | string, _blob?: string) {
+  static async drawBitmap(loader: LazyLoader, source: ImageBitmap | string, _blob?: string) {
     const c = loader.canvas;
-    c.height = source.height;
-    c.width = source.width;
+    let tmpBitmap: ImageBitmap;
+
+    if (source instanceof ImageBitmap) {
+      tmpBitmap = source
+    } else {
+      tmpBitmap = await convertUrlToImageBitmap(source);
+    }
+
+    c.height = tmpBitmap.height;
+    c.width = tmpBitmap.width;
     let ctx: CanvasRenderingContext2D | ImageBitmapRenderingContext =
       c.getContext("bitmaprenderer", {
         alpha: false,
@@ -515,12 +524,12 @@ export default class LazyLoader {
         desynchronized: true,
         alpha: false,
       }) as CanvasRenderingContext2D;
-      if (ctx) ctx.drawImage(source, 0, 0);
-      else console.warn("No canvas context!", ctx, source);
+      if (ctx) ctx.drawImage(tmpBitmap, 0, 0);
+      else console.warn("No canvas context!", ctx, tmpBitmap);
     } else {
-      ctx.transferFromImageBitmap(source);
+      ctx.transferFromImageBitmap(tmpBitmap);
     }
-    source.close();
+    tmpBitmap.close();
     // console.log("drawBitmap", c.getAttribute("aria-label"), ctx, source);
 
     loader.loaded = true;

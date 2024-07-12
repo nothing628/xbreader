@@ -115,9 +115,8 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
         items.push(pageAmountIndicator);
     }
 
-    const sseries =
-      publication.findSpecial("series") &&
-      publication.findSpecial("series").Value;
+    const seriesSetting = publication.findSpecial("series");
+    const sseries = seriesSetting && seriesSetting.Value;
     if (sseries && sseries.next && !embedded) {
       // Has a next chapter
       const nextLink = m(
@@ -226,13 +225,141 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
         );
   }
 
+  renderBotbarControl(attrs: InterfaceAttrs): m.Vnode<any, any> {
+    const ui = attrs.model;
+    const slider = attrs.slider;
+    const reader = attrs.reader;
+    const publication = reader.publication;
+    const brand = reader.config.state.brand;
+    const config = attrs.config;
+    const barClass =
+      (ui.isHidden ? "hidden" : "shown") + (config.animate ? " animate" : "");
+
+    const children: m.Children[] = [];
+
+    if (publication) {
+      children.push(this.sliderSystem(slider, publication, brand.embedded));
+
+      if (!publication.isSmallToon) {
+        const controlChilds: m.Children = [];
+
+        if (!publication.isTtb || !publication.isSmallToon) {
+          controlChilds.push(this.tweakButton(publication, slider));
+        } else {
+          controlChilds.push(m.fragment({ key: "no-tweak-button" }, []));
+        }
+
+        if (!publication.isTtb) {
+          controlChilds.push(
+            m(
+              "button#br-view__rvm",
+              {
+                key: "reading-direction",
+                title: t`Toggle reading direction`,
+                onclick: () => {
+                  slider.zoomer.scale = 1;
+                  reader.switchDirection();
+                },
+              },
+              [
+                m("i#br-view__toggle", {
+                  "aria-hidden": "true",
+                  class: slider.ttb ? "br-i-horizontal" : "br-i-vertical",
+                }),
+              ]
+            )
+          );
+        } else {
+          controlChilds.push(
+            m.fragment({ key: "no-reading-direction-button" }, [])
+          );
+        }
+
+        const controls = m(
+          "div.br-botbar-controls",
+          {
+            class: slider.portrait ? "portrait" : "landscape",
+          },
+          controlChilds
+        );
+        children.push(controls);
+      }
+    }
+
+    const botbar = m(
+      "div#br-botbar.noselect",
+      {
+        class: barClass,
+        "aria-label": t`Bottom bar`,
+      },
+      children
+    );
+
+    return botbar;
+  }
+
+  renderTitlebar(attrs: InterfaceAttrs): m.Vnode<any, any> {
+    const reader = attrs.reader;
+    const series = reader.series;
+    const brand = reader.config.state.brand;
+    const firstSeries = series?.firstSeries;
+    const publication = reader.publication;
+    const childrens: m.Children[] = [];
+
+    if (series && series.exists) {
+      if (brand.embedded) {
+        childrens.push(
+          m(
+            "span.br-toolbar__ellipsis",
+            firstSeries ? (firstSeries.Name as Child) : null
+          )
+        );
+      } else {
+        childrens.push(
+          m(
+            "a.br-toolbar__ellipsis",
+            {
+              href:
+                series && series.firstSeries
+                  ? series.firstSeries.Identifier
+                  : null,
+              title: t`Series`,
+              target: "_parent",
+            },
+            firstSeries ? (firstSeries.Name as Child) : null
+          )
+        );
+        childrens.push(m("span.spacer", spacer));
+      }
+    } else {
+      childrens.push(null);
+    }
+
+    if (brand.embedded) {
+      childrens.push(
+        m(
+          "span#br-chapter",
+          publication ? (publication.pmetadata.Title as Child) : null
+        )
+      );
+    } else {
+      childrens.push(series ? series.selector : null);
+    }
+
+    const topbar = m(
+      "section.br-toolbar__tsection",
+      { "aria-label": t`Title` },
+      childrens
+    );
+
+    return topbar;
+  }
+
   view(vnode: Vnode<InterfaceAttrs, this>) {
     const ui = vnode.attrs.model;
     const brand = vnode.attrs.reader.config.state.brand;
     const tabConfig = vnode.attrs.reader.config.state.tabs;
     const slider = vnode.attrs.slider;
-    const publication = vnode.attrs.reader.publication;
-    const series = vnode.attrs.reader.series;
     const config = vnode.attrs.config;
 
     const postTabs: Vnode[] = tabConfig
@@ -299,6 +426,8 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
     if (preTabs.length > 0) startSection.unshift(m("nav.br-tab-bar", preTabs));
     const barClass =
       (ui.isHidden ? "hidden" : "shown") + (config.animate ? " animate" : "");
+    const botbar = this.renderBotbarControl(vnode.attrs);
+    const titlebar = this.renderTitlebar(vnode.attrs);
     const retval = [
       m(
         "div.noselect#br-topbar",
@@ -316,30 +445,7 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
               },
               startSection
             ),
-            m("section.br-toolbar__tsection", { "aria-label": t`Title` }, [
-              series.exists
-                ? brand.embedded
-                  ? m(
-                      "span.br-toolbar__ellipsis",
-                      series.firstSeries.Name as Child
-                    )
-                  : [
-                      m(
-                        "a.br-toolbar__ellipsis",
-                        {
-                          href: series.firstSeries.Identifier,
-                          title: t`Series`,
-                          target: "_parent",
-                        },
-                        series.firstSeries.Name as Child
-                      ),
-                      m("span.spacer", spacer),
-                    ]
-                : null,
-              brand.embedded
-                ? m("span#br-chapter", publication.pmetadata.Title as Child)
-                : vnode.attrs.reader.series.selector,
-            ]),
+            titlebar,
             m(
               "section.br-toolbar__section.br-toolbar__section--align-end.dhide",
               {
@@ -363,50 +469,8 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
           ]),
         ]
       ),
-      m(
-        "div#br-botbar.noselect",
-        {
-          class: barClass,
-          "aria-label": t`Bottom bar`,
-        },
-        [
-          this.sliderSystem(slider, publication, brand.embedded),
-          !publication.isSmallToon &&
-            m(
-              "div.br-botbar-controls",
-              {
-                class: slider.portrait ? "portrait" : "landscape",
-              },
-              [
-                !publication.isTtb || !publication.isSmallToon
-                  ? this.tweakButton(publication, slider)
-                  : m.fragment({ key: "no-tweak-button" }, []),
-                !publication.isTtb
-                  ? m(
-                      "button#br-view__rvm",
-                      {
-                        key: "reading-direction",
-                        title: t`Toggle reading direction`,
-                        onclick: () => {
-                          const reader = vnode.attrs.reader;
-                          slider.zoomer.scale = 1;
-                          reader.switchDirection();
-                        },
-                      },
-                      [
-                        m("i#br-view__toggle", {
-                          "aria-hidden": "true",
-                          class: slider.ttb
-                            ? "br-i-horizontal"
-                            : "br-i-vertical",
-                        }),
-                      ]
-                    )
-                  : m.fragment({ key: "no-reading-direction-button" }, []),
-              ]
-            ),
-        ]
-      ),
+      // Botbar control
+      botbar,
     ];
 
     if (ui.settingsShown)

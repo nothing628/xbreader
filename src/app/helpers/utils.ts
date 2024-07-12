@@ -8,6 +8,30 @@ export function intVal(n: number | string): number {
   return typeof n === "number" ? n : parseInt(n, 10);
 }
 
+export const convertUrlToImageBitmap = async (sourceUrl: URL | string) => {
+  const promise = new Promise<ImageBitmap>(async (resolve, reject) => {
+    const tmpImage = document.createElement("img");
+
+    tmpImage.onload = async () => {
+      try {
+        const imageBitmap = await createImageBitmap(tmpImage);
+
+        resolve(imageBitmap);
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    if (sourceUrl instanceof URL) {
+      tmpImage.src = sourceUrl.href;
+    } else {
+      tmpImage.src = sourceUrl;
+    }
+  });
+
+  return promise;
+};
+
 export function parseDirection(
   d: XBReadingDirection | string
 ): XBReadingDirection {
