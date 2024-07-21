@@ -27,22 +27,22 @@ export default class Slider {
   readonly series: Series;
   readonly publication: Publication;
   private readonly config: Config;
-  private transform: string = null;
+  private transform: string = "";
   private orientationInternal = -1; // Portrait = 1, Landscape = 0, Unknown = -1
   public rlength = 0;
   currentSlide = 0;
   _fraction = 0;
   ignoreScrollFlag = false;
-  br_spine: HTMLElement;
+  br_spine: HTMLElement | null = null;
   rtl: boolean;
   ttb = false;
   spread: boolean;
   fit: boolean;
-  guideHidden: boolean;
+  guideHidden: boolean = false;
   binder: Peripherals;
   innerHeightCached: number;
-  width: number;
-  height: number;
+  width: number = 0;
+  height: number = 0;
   zoomer: Zoomer = {
     scale: 1,
     translate: {
@@ -50,9 +50,9 @@ export default class Slider {
       Y: 0,
     },
   };
-  properties: Record<string, any>; // TODO CSS styles
+  properties: Record<string, any> = {}; // TODO CSS styles
   private readonly resizeBoundHandler: EventListenerOrEventListenerObject;
-  private PageChangeTimer: number;
+  private PageChangeTimer: number = -1;
 
   constructor(
     series: Series,

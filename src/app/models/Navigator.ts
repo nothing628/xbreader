@@ -8,7 +8,7 @@ export default class Navigator {
   private readonly ttb: boolean;
   shift = true; // TODO getter
   private spreads: Link[][] = [];
-  nLandscape: number; // TODO getter
+  nLandscape: number = 0; // TODO getter
 
   constructor(publication: Publication) {
     this.ttb = publication.isTtb;
@@ -18,7 +18,7 @@ export default class Navigator {
     this.index(publication);
     this.testShift(publication);
     console.log(
-      `Indexed ${this.spreads.length} spreads for ${publication.spine.length} items`
+      `Indexed ${this.spreads.length} spreads for ${publication.spine?.length} items`
     );
   }
 
@@ -92,7 +92,7 @@ export default class Navigator {
       if (
         single.Properties.Orientation === "portrait" &&
         single.Properties.Page !== "center" &&
-        single.findSpecial("number").Value > 1
+        single.findSpecial("number")?.Value > 1
       )
         wasLastSingle = true;
       else wasLastSingle = false;
@@ -137,8 +137,8 @@ export default class Navigator {
       }
       if (spread.length && spread[0].findFlag("final")) return t`END`;
       spread.forEach((item, index) => {
-        if (!index) spreadString += item.findSpecial("number").Value;
-        else spreadString += "-" + item.findSpecial("number").Value;
+        if (!index) spreadString += item.findSpecial("number")?.Value;
+        else spreadString += "-" + item.findSpecial("number")?.Value;
       });
       return spreadString;
     } else {

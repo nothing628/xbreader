@@ -39,7 +39,7 @@ export interface DragTracker {
 
 export interface PinchTracker {
   startDistance: number;
-  startOffset: Point;
+  startOffset: Point | null;
   touchN: number;
 }
 
@@ -66,19 +66,19 @@ export default class Peripherals {
   isPinching = false;
   private pointerDown = false;
   coordinator: Coordinator;
-  private mtimer: number;
-  private pdblclick: boolean;
-  private dblDisabler: number;
-  private disableDblClick: boolean;
-  private dtimer: number;
-  private Timer_onscrolled: number;
-  private Timer_cooldown: number;
-  private onwheelTimer_stop: number;
-  private onwheeled_hot: boolean;
+  private mtimer: number = -1;
+  private dtimer: number = -1;
+  private dblDisabler: number = -1;
+  private Timer_onscrolled: number = -1;
+  private Timer_cooldown: number = -1;
+  private onwheelTimer_stop: number = -1;
+  private pdblclick: boolean = false;
+  private disableDblClick: boolean = false;
+  private onwheeled_hot: boolean = false;
   private drag: DragTracker;
   private pinch: PinchTracker;
   private mousePos: BibiEvent;
-  private currentCursor: string;
+  private currentCursor: string = "";
   ignoreScrollFlag = false;
 
   private MovingParameters: { [keyName: string]: string | number } = {
@@ -410,7 +410,7 @@ export default class Peripherals {
         (currentDistance / this.pinch.startDistance) * this.slider.zoomer.scale;
       if (newScale >= MAX_SCALE) newScale = MAX_SCALE;
       if (newScale <= 1.1) newScale = 1;
-      const center = this.coordinator.getTouchCenter(e);
+      // const center = this.coordinator.getTouchCenter(e);
       this.slider.zoomer = {
         scale: newScale,
         translate: {

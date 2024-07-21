@@ -1,6 +1,6 @@
 import { t } from "ttag";
 import m, { ClassComponent, Vnode } from "mithril";
-import SmartLoader, { chooserFunction, drawerFunction } from "xbreader/helpers/lazyLoader";
+import SmartLoader, { chooserFunction } from "xbreader/helpers/lazyLoader";
 import Link from "xbreader/models/Link";
 import Slider from "xbreader/models/Slider";
 import { RenderConfig } from "xbreader/models/Config";
@@ -34,7 +34,7 @@ export default class Page implements ClassComponent<PageAttrs> {
 
   data: Link = new Link();
   blank: boolean = false;
-  private loader: SmartLoader;
+  private loader?: SmartLoader;
 
   parseDimension(val: number | string) {
     if (isNaN(val as number)) return "auto";
@@ -79,7 +79,7 @@ export default class Page implements ClassComponent<PageAttrs> {
   }
 
   onremove() {
-    this.loader.destroy();
+    if (this.loader) this.loader.destroy();
   }
 
   view(vnode: Vnode<PageAttrs, this>) {
@@ -174,7 +174,7 @@ export default class Page implements ClassComponent<PageAttrs> {
               this.itemWidth = "auto";
               this.itemHeight = "auto";
             }
-            if (this.loader.reloader)
+            if (this.loader && this.loader.reloader)
               // Keep the scrollbar from glitching as much (it still does some...)
               this.itemHeight = this.data.Height;
           }
@@ -270,7 +270,8 @@ export default class Page implements ClassComponent<PageAttrs> {
         innerItemIs = m("iframe.page-frame.noselect", innerItemAttrs); // + (vnode.attrs.data.findSpecial("final").Value ? "" : ".noget")
       }
       requestAnimationFrame(() => {
-        this.loader.provoke(innerItemIs as any, slider.viewingPage);
+        if (this.loader)
+          this.loader.provoke(innerItemIs as any, slider.viewingPage);
       });
     }
     return m(".item.noselect", itemAttrs, [innerItemIs]);
