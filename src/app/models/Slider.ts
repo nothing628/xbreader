@@ -160,9 +160,9 @@ export default class Slider {
     return 50;
   }
 
-  private get easing() {
-    return "ease-out";
-  }
+  // private get easing() {
+  //   return "ease-out";
+  // }
 
   get perPage(): number {
     return this.spread && !this.portrait && !this.ttb ? 2 : 1;

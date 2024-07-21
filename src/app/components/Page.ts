@@ -1,6 +1,6 @@
 import { t } from "ttag";
 import m, { ClassComponent, Vnode } from "mithril";
-import SmartLoader, { chooserFunction } from "xbreader/helpers/lazyLoader";
+import SmartLoader, { chooserFunction, drawerFunction } from "xbreader/helpers/lazyLoader";
 import Link from "xbreader/models/Link";
 import Slider from "xbreader/models/Slider";
 import { RenderConfig } from "xbreader/models/Config";
@@ -26,14 +26,14 @@ interface InnerItemAttrs {
 }
 
 export default class Page implements ClassComponent<PageAttrs> {
-  private itemHeight: number | string;
-  private itemWidth: number | string;
-  private marginLeft: number;
-  private marginRight: number;
-  private marginTop: number;
+  private itemHeight: number | string = 0;
+  private itemWidth: number | string = 0;
+  private marginLeft: number = 0;
+  private marginRight: number = 0;
+  private marginTop: number = 0;
 
-  data: Link;
-  blank: boolean;
+  data: Link = new Link();
+  blank: boolean = false;
   private loader: SmartLoader;
 
   parseDimension(val: number | string) {
@@ -122,7 +122,7 @@ export default class Page implements ClassComponent<PageAttrs> {
         this.marginRight = (docWidth - this.itemWidth) / 2;
     }
 
-    const itemAttrs: InnerItemAttrs = { style: null };
+    const itemAttrs: InnerItemAttrs = { style: "" };
     if (slider && (slider.ttb || slider.single)) {
       // Vertical (TTB) or forced single page
       if (slider.toon || this.data.Height / this.data.Width > 2) {
@@ -195,7 +195,7 @@ export default class Page implements ClassComponent<PageAttrs> {
         else this.marginRight += docWidth / 2;
       itemAttrs.style = this.styles;
     }
-    let innerItemIs: Vnode = null;
+    let innerItemIs: m.Child;
     if (vnode.attrs.blank)
       innerItemIs = m("canvas.page-blank", {
         height: this.data.Height,
@@ -235,20 +235,25 @@ export default class Page implements ClassComponent<PageAttrs> {
           const tx = (e.target as HTMLIFrameElement).contentDocument;
           if (!tx) return;
           vnode.attrs.binder.observe(tx);
-          tx.addEventListener("pointermove", (e: MithrilEvent) => {
-            e.special = true;
-            vnode.attrs.binder.onpointermove(e as any);
+          tx.addEventListener("pointermove", (e) => {
+            const evt = e as unknown as MithrilEvent;
+            evt.special = true;
+            vnode.attrs.binder.onpointermove(e as unknown as BibiMouseEvent);
           });
           tx.addEventListener("mousemove", vnode.attrs.binder.mousemoveUpdater); // To keep it updated for when you go back to normal pages
-          tx.addEventListener("mousemove", (e: MithrilEvent) => {
-            e.special = true;
-            return vnode.attrs.binder.mousemoveHandler(e as any);
-          });
-          tx.addEventListener("click", (e: MithrilEvent) => {
-            (e.target as HTMLElement).blur();
-            e.special = true;
+          tx.addEventListener("mousemove", (e) => {
+            const evt = e as unknown as MithrilEvent;
+            evt.special = true;
             return vnode.attrs.binder.mousemoveHandler(
-              e as any as BibiMouseEvent
+              e as unknown as BibiMouseEvent
+            );
+          });
+          tx.addEventListener("click", (e) => {
+            const evt = e as unknown as MithrilEvent;
+            (e.target as HTMLElement).blur();
+            evt.special = true;
+            return vnode.attrs.binder.mousemoveHandler(
+              e as unknown as BibiMouseEvent
             );
           });
 

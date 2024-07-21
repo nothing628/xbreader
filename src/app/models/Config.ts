@@ -233,7 +233,7 @@ const DEFAULT_SETTINGS: XBSetting[] = [
 
 export interface RenderConfig {
   bitmap: boolean;
-  onDraw: drawerFunction;
+  onDraw?: drawerFunction;
   lok: boolean;
   worker: Worker | WorkerPool;
   noContext: boolean;

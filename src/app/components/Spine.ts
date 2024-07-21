@@ -25,15 +25,16 @@ export default class Spine implements ClassComponent<SpineAttrs> {
         onmousedown: binder ? binder.mousedownHandler : null,
         "aria-label": t`Spine`,
       },
-      (children as ChildArray).map((page: Vnode<Page | ReflowablePage>) => {
+      (children as ChildArray).map((page) => {
+        const pageCast = page as Vnode<Page | ReflowablePage>;
         if (
-          page.attrs.data.TypeLink.startsWith("text/") &&
-          !page.attrs.data.findFlag("final")
+          pageCast.attrs.data.TypeLink.startsWith("text/") &&
+          !pageCast.attrs.data.findFlag("final")
         )
           return m(
             "div",
             {
-              key: "container@" + page.key,
+              key: "container@" + pageCast.key,
             },
             page
           );
@@ -49,13 +50,13 @@ export default class Spine implements ClassComponent<SpineAttrs> {
                   float: slider.rtl ? "right" : "left",
                   width: `${
                     (100 / slider.length) *
-                    (page.attrs.data.Properties.Orientation === "landscape" ||
-                    page.attrs.data.findFlag("addBlank")
+                    (pageCast.attrs.data.Properties.Orientation ===
+                      "landscape" || pageCast.attrs.data.findFlag("addBlank")
                       ? slider.perPage
                       : 1)
                   }%`,
                 },
-            key: "container@" + page.key,
+            key: "container@" + pageCast.key,
           },
           page
         );

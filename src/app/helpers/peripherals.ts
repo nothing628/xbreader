@@ -432,10 +432,12 @@ export default class Peripherals {
 
     if (this.isScaled && this.pointerDown) {
       const BibiEvent = this.coordinator.getBibiEvent(e);
-      this.slider.zoomer.translate = {
-        X: this.drag.transformX - (BibiEvent.Coord.X - this.drag.startX),
-        Y: this.drag.transformY - (BibiEvent.Coord.Y - this.drag.startY),
-      };
+      if (BibiEvent.Coord) {
+        this.slider.zoomer.translate = {
+          X: this.drag.transformX - (BibiEvent.Coord.X - this.drag.startX),
+          Y: this.drag.transformY - (BibiEvent.Coord.Y - this.drag.startY),
+        };
+      }
 
       if (this.slider.zoomer.translate.X < 0)
         this.slider.zoomer.translate.X = 0;
@@ -507,8 +509,9 @@ export default class Peripherals {
   }
 
   private get mousePosOut() {
-    if (this.mousePos.Ratio.Y > 0.95 || this.mousePos.Ratio.Y < 0.05)
-      return true;
+    if (this.mousePos.Ratio)
+      if (this.mousePos.Ratio.Y > 0.95 || this.mousePos.Ratio.Y < 0.05)
+        return true;
     return false;
   }
 
@@ -529,38 +532,42 @@ export default class Peripherals {
         !this.slider.series.next;
     if (this.slider.ttb) {
       // Vertical controls
-      switch (this.mousePos.Division.Y) {
-        case VerticalThird.Bottom:
-          this.changeCursor(atLastSlide ? "not-allowed" : "s-resize");
-          break;
-        case VerticalThird.Top:
-          this.changeCursor(atFirstSlide ? "not-allowed" : "n-resize");
-          break;
-        case VerticalThird.Middle:
-          this.changeCursor("context-menu");
-          break;
+      if (this.mousePos.Division) {
+        switch (this.mousePos.Division.Y) {
+          case VerticalThird.Bottom:
+            this.changeCursor(atLastSlide ? "not-allowed" : "s-resize");
+            break;
+          case VerticalThird.Top:
+            this.changeCursor(atFirstSlide ? "not-allowed" : "n-resize");
+            break;
+          case VerticalThird.Middle:
+            this.changeCursor("context-menu");
+            break;
+        }
       }
     } else {
       // Horizontal controls
       const rtl = this.slider.rtl;
-      switch (this.mousePos.Division.X) {
-        case HorizontalThird.Left:
-          this.changeCursor(
-            (atFirstSlide && !rtl) || (atLastSlide && rtl)
-              ? "not-allowed"
-              : "w-resize"
-          );
-          break;
-        case HorizontalThird.Right:
-          this.changeCursor(
-            (atFirstSlide && rtl) || (atLastSlide && !rtl)
-              ? "not-allowed"
-              : "e-resize"
-          );
-          break;
-        case HorizontalThird.Center:
-          this.changeCursor("context-menu");
-          break;
+      if (this.mousePos.Division) {
+        switch (this.mousePos.Division.X) {
+          case HorizontalThird.Left:
+            this.changeCursor(
+              (atFirstSlide && !rtl) || (atLastSlide && rtl)
+                ? "not-allowed"
+                : "w-resize"
+            );
+            break;
+          case HorizontalThird.Right:
+            this.changeCursor(
+              (atFirstSlide && rtl) || (atLastSlide && !rtl)
+                ? "not-allowed"
+                : "e-resize"
+            );
+            break;
+          case HorizontalThird.Center:
+            this.changeCursor("context-menu");
+            break;
+        }
       }
     }
   }
@@ -596,7 +603,7 @@ export default class Peripherals {
 
         this.cursorHandler();
       } else {
-        this.changeCursor(null);
+        this.changeCursor("");
         this.ui.toggle(true);
         m.redraw();
       }
@@ -637,12 +644,12 @@ export default class Peripherals {
     const movementDistance = Math.abs(movement);
     const howManySliderToSlide = this.slider.perPage;
 
-    const slideToNegativeClone =
-      movement > 0 && this.slider.currentSlide - howManySliderToSlide < 0;
-    const slideToPositiveClone =
-      movement < 0 &&
-      this.slider.currentSlide + howManySliderToSlide >
-        this.slider.slength - this.slider.perPage;
+    // const slideToNegativeClone =
+    //   movement > 0 && this.slider.currentSlide - howManySliderToSlide < 0;
+    // const slideToPositiveClone =
+    //   movement < 0 &&
+    //   this.slider.currentSlide + howManySliderToSlide >
+    //     this.slider.slength - this.slider.perPage;
 
     let changed = false;
     if (

@@ -102,7 +102,7 @@ if (workerSupported) {
                   createImageBitmap(xhr.response as Blob).then(
                     (bitmap: ImageBitmap) => {
                       if (e.data.needRaw) {
-                        let url: string;
+                        let url: string = "";
                         if (e.data.needRaw === true)
                           url = URL.createObjectURL(xhr.response);
                         else if (Array.isArray(e.data.needRaw)) {
@@ -130,7 +130,7 @@ if (workerSupported) {
               } else {
                 const url = URL.createObjectURL(xhr.response);
                 if (e.data.needRaw) {
-                  let durl: string;
+                  let durl: string = "";
                   if (e.data.needRaw === true) durl = url; // NOOP
                   else if (Array.isArray(e.data.needRaw)) {
                     const dat = e.data.needRaw as number[];
