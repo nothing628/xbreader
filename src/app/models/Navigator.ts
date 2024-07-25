@@ -24,7 +24,7 @@ export default class Navigator {
 
   private index(publication: Publication, redo = false) {
     this.nLandscape = 0;
-    publication.spine.forEach((item, index) => {
+    publication.spine!.forEach((item, index) => {
       if (!/^(?:[a-z]+:)?\/\//i.test(item.Href))
         // convert URL relative to manifest to absolute URL
         item.Href = new URL(item.Href, publication.url).href;
@@ -63,7 +63,7 @@ export default class Navigator {
       if (isLandscape || item.findFlag("addBlank")) this.nLandscape++;
     });
     if (redo) this.spreads = [];
-    this.buildSpreads(publication.spine);
+    this.buildSpreads(publication.spine!);
   }
 
   private testShift(publication: Publication) {

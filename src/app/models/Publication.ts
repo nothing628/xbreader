@@ -32,7 +32,7 @@ import { Metadata } from "@r2-shared-js/models/metadata";
 export default class Publication {
   ready: boolean;
   url: string;
-  navi: Navigator;
+  navi!: Navigator;
 
   // tslint:disable-next-line:max-line-length
   // https://github.com/readium/webpub-manifest/blob/0ac78ab5c270a608c39b4b04fc90bd9b1d281896/schema/publication.schema.json#L6
@@ -426,11 +426,11 @@ export default class Publication {
   }
 
   get direction(): XBReadingDirection {
-    return parseDirection(this.pmetadata.Direction);
+    return parseDirection(this.pmetadata.Direction || "");
   }
 
   get shift() {
-    return this.navi.shift;
+    return this.navi?.shift;
   }
 
   get rtl() {
@@ -456,7 +456,7 @@ export default class Publication {
     if (!this.isReady || !this.isTtb) return false; // TODO if not fixed layout
 
     // Find the smallest width of an image in the spine
-    const smallestWidth = this.spine
+    const smallestWidth = this.spine!
       .filter((link) => link.findFlag("isImage"))
       .map((link) => link.Width)
       .reduce((prev, curr) => Math.min(prev, curr));

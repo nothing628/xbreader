@@ -65,7 +65,7 @@ export default class Peripherals {
   isDragging = false;
   isPinching = false;
   private pointerDown = false;
-  coordinator: Coordinator;
+  coordinator: Coordinator | null;
   private mtimer: number = -1;
   private dtimer: number = -1;
   private dblDisabler: number = -1;
@@ -75,9 +75,9 @@ export default class Peripherals {
   private pdblclick: boolean = false;
   private disableDblClick: boolean = false;
   private onwheeled_hot: boolean = false;
-  private drag: DragTracker;
-  private pinch: PinchTracker;
-  private mousePos: BibiEvent;
+  private drag!: DragTracker;
+  private pinch!: PinchTracker;
+  private mousePos?: BibiEvent;
   private currentCursor: string = "";
   ignoreScrollFlag = false;
 
@@ -135,8 +135,8 @@ export default class Peripherals {
   ];
 
   constructor(Reader: Reader) {
-    this.slider = Reader.slider;
-    this.ui = Reader.ui;
+    this.slider = Reader.slider!;
+    this.ui = Reader.ui!;
     this.reader = Reader;
     this.coordinator = new Coordinator();
 
@@ -189,7 +189,7 @@ export default class Peripherals {
       72: "H", // Direction toggle
     });
 
-    this.updateMovingParameters(Reader.direction);
+    this.updateMovingParameters(Reader.direction!);
 
     // Bind all event handlers for referencability
     this.handlers.forEach((method) => {
@@ -245,22 +245,22 @@ export default class Peripherals {
         break;
       }
       case "settings": {
-        this.reader.ui.toggleSettings();
+        this.reader.ui!.toggleSettings();
         m.redraw();
         break;
       }
       case "popup": {
         if (v === "false" || v === "0" || v === "no")
-          this.reader.ui.toggleDialog(false);
+          this.reader.ui!.toggleDialog(false);
         else {
           const data = JSON.parse(v) as DialogData;
           if (!data.src) return;
-          this.reader.ui.toggleDialog(true, data);
+          this.reader.ui!.toggleDialog(true, data);
         }
         break;
       }
       case "toast": {
-        this.reader.ui.notify(v);
+        this.reader.ui!.notify(v);
         break;
       }
       // TODO more
@@ -347,8 +347,8 @@ export default class Peripherals {
                 ? this.slider.zoomer.translate.Y
                 : e.touches[0].pageY,
           };
-        else this.pinch.startOffset = this.coordinator.getTouchCenter(e);
-        this.pinch.startDistance = this.coordinator.getTouchDistance(e);
+        else this.pinch.startOffset = this.coordinator!.getTouchCenter(e);
+        this.pinch.startDistance = this.coordinator!.getTouchDistance(e);
         this.isPinching = true;
         this.pointerDown = true;
         return;
@@ -416,8 +416,8 @@ export default class Peripherals {
         translate: {
           /*X: center.X,
                     Y: center.Y,*/
-          X: this.pinch.startOffset.X,
-          Y: this.pinch.startOffset.Y,
+          X: this.pinch.startOffset!.X,
+          Y: this.pinch.startOffset!.Y,
         },
       };
       this.pinch.startDistance = currentDistance;
@@ -431,7 +431,7 @@ export default class Peripherals {
     }
 
     if (this.isScaled && this.pointerDown) {
-      const BibiEvent = this.coordinator.getBibiEvent(e);
+      const BibiEvent = this.coordinator!.getBibiEvent(e);
       if (BibiEvent.Coord) {
         this.slider.zoomer.translate = {
           X: this.drag.transformX - (BibiEvent.Coord.X - this.drag.startX),
@@ -509,14 +509,14 @@ export default class Peripherals {
   }
 
   private get mousePosOut() {
-    if (this.mousePos.Ratio)
+    if (this.mousePos && this.mousePos.Ratio)
       if (this.mousePos.Ratio.Y > 0.95 || this.mousePos.Ratio.Y < 0.05)
         return true;
     return false;
   }
 
   mousemoveUpdater(e: MouseEvent) {
-    this.mousePos = this.coordinator.getBibiEvent(e);
+    this.mousePos = this.coordinator!.getBibiEvent(e);
     this.ui.mousing = true;
   }
 
@@ -585,7 +585,7 @@ export default class Peripherals {
         const mouseIt = window.setTimeout(() => {
           this.ui.mousing = false; // Race!
         }, 50);
-        this.mousePos = this.coordinator.getBibiEvent(e);
+        this.mousePos = this.coordinator!.getBibiEvent(e);
         if (this.mousePosOut) {
           clearTimeout(mouseIt); // Cancel override
           this.ui.mousing = true;
@@ -886,7 +886,7 @@ export default class Peripherals {
         if (
           this.slider.single &&
           !this.slider.ttb &&
-          this.coordinator.HTML.scrollTop > 5
+          this.coordinator!.HTML.scrollTop > 5
         ) {
           this.attemptScrollTo(0);
           return;
@@ -939,7 +939,7 @@ export default class Peripherals {
 
   private evalPointer(event: MouseEvent, active: boolean) {
     if (!active) return;
-    this.mousePos = this.coordinator.getBibiEvent(event);
+    this.mousePos = this.coordinator!.getBibiEvent(event);
     if (this.slider.ttb) {
       // Vertical controls
       if (this.mousePos.Division) {
@@ -1005,7 +1005,7 @@ export default class Peripherals {
     this.ui.toggle(false);
     if (!this.slider.zoomer || this.disableDblClick) return;
 
-    const BibiEvent = this.coordinator.getBibiEvent(Eve);
+    const BibiEvent = this.coordinator!.getBibiEvent(Eve);
     this.slider.zoomer.scale = this.isScaled ? 1 : 2;
     if (this.isScaled)
       this.slider.zoomer.translate = {
@@ -1019,13 +1019,14 @@ export default class Peripherals {
             };*/
   }
 
-  onpointermove(Eve: BibiMouseEvent) {
-    const CC = this.coordinator.getBibiEventCoord(Eve),
+  onpointermove(Eve: PointerEvent) {
+    const eveX = Eve as unknown as BibiMouseEvent
+    const CC = this.coordinator!.getBibiEventCoord(Eve),
       PC = this.PreviousCoord;
     if (PC.X !== CC.X || PC.Y !== CC.Y) this.evalPointer(Eve, false); //E.dispatch("bibi:moved-pointer",   Eve);
     //else console.log("stopped moving");//E.dispatch("bibi:stopped-pointer", Eve);
     this.PreviousCoord = CC;
-    if (Eve.special) this.ui.toggle(true);
+    if (eveX.special) this.ui.toggle(true);
   }
 
   private processVScroll() {
