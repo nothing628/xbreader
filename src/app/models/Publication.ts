@@ -339,7 +339,7 @@ export default class Publication {
   }
 
   loadFromData(manifestData: Publication) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       this.Metadata = manifestData.Metadata;
       this.Spine = manifestData.Spine;
       this.Links = manifestData.Links;

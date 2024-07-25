@@ -72,7 +72,7 @@ export default class Slider {
     this._firstfit = this.fit = config.fit;
     this.innerHeightCached = window.innerHeight;
     this.updateProperties(true);
-    this.resizeBoundHandler = this.resizeHandler.bind(this);
+    this.resizeBoundHandler = this.resizeHandler.bind(this) as unknown as EventListenerOrEventListenerObject;
     window.addEventListener("resize", this.resizeBoundHandler);
     window.addEventListener("orientationchange", this.resizeBoundHandler);
   }
@@ -328,7 +328,7 @@ export default class Slider {
 
     if (this.toonflowable && this.ttb) {
       // Toon page down
-      this.binder.coordinator.HTML.scrollTop += this.innerHeightCached;
+      this.binder.coordinator!.HTML.scrollTop += this.innerHeightCached;
       return;
     }
 
@@ -366,7 +366,7 @@ export default class Slider {
 
     if (this.toonflowable && this.ttb) {
       // Toon page up
-      this.binder.coordinator.HTML.scrollTop -= this.innerHeightCached;
+      this.binder.coordinator!.HTML.scrollTop -= this.innerHeightCached;
       return;
     }
 

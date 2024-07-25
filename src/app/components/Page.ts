@@ -238,7 +238,7 @@ export default class Page implements ClassComponent<PageAttrs> {
           tx.addEventListener("pointermove", (e) => {
             const evt = e as unknown as MithrilEvent;
             evt.special = true;
-            vnode.attrs.binder.onpointermove(e as unknown as BibiMouseEvent);
+            vnode.attrs.binder.onpointermove(e as unknown as PointerEvent);
           });
           tx.addEventListener("mousemove", vnode.attrs.binder.mousemoveUpdater); // To keep it updated for when you go back to normal pages
           tx.addEventListener("mousemove", (e) => {

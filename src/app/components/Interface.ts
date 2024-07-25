@@ -28,7 +28,7 @@ export default class Interface implements ClassComponent<InterfaceAttrs> {
     if (publication.isTtb || publication.reflowable) {
       if (!slider.selector) return;
       if (slider.ttb || publication.isTtb)
-        slider.binder.coordinator.HTML.scrollTo(
+        slider.binder.coordinator!.HTML.scrollTo(
           0,
           ((slider.selector.getBoundingClientRect().height -
             slider.innerHeightCached) *

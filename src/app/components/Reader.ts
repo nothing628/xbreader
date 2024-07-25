@@ -83,13 +83,13 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
   setTitle(title?: string) {
     if (!this.config.state.brand.titled) return;
     const bn = this.config.state.brand.name;
-    if (bn) document.title = title ? `${title} - ${bn}` : title;
+    if (bn) document.title = title ? `${title} - ${bn}` : (title || "");
     else document.title = title ? title : __NAME__;
   }
 
   switchDirection(direction?: XBReadingDirection | string) {
-    direction = parseDirection(direction);
-    const pdir = this.publication.direction;
+    direction = parseDirection(direction || "");
+    const pdir = this.publication!.direction;
     if (direction === undefined) {
       if (this.direction === undefined) {
         console.error("Can't switch directions if one isn't already set!");
@@ -113,7 +113,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
       // Already that direction
       return true;
     console.log("Setting direction: " + directionToString(direction));
-    if (this.slider.zoomer) this.slider.zoomer.scale = 1;
+    if (this.slider && this.slider.zoomer) this.slider.zoomer.scale = 1;
     this.guideHidden = this.config.state.guideHidden;
     clearTimeout(this.guideHider);
     this.guideHider = window.setTimeout(() => {
@@ -137,18 +137,18 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
         if (!this.slider) {
           // TTB-only publication!
           console.log("TTB lock");
-          this.slider.ttb = true;
+          this.slider!.ttb = true;
         }
         // Coming from spreads
-        const p = this.slider.minViewingPage;
-        if (p !== this.slider.currentSlide) this.slider.currentSlide = p;
+        const p = this.slider!.minViewingPage;
+        if (p !== this.slider!.currentSlide) this.slider!.currentSlide = p;
 
-        this.slider.ttb = true;
-        this.slider.rtl = false;
-        this.slider.resizeHandler(true);
-        if (this.mobile) this.slider.slideToCurrent(false, true);
+        this.slider!.ttb = true;
+        this.slider!.rtl = false;
+        this.slider!.resizeHandler(true);
+        if (this.mobile) this.slider!.slideToCurrent(false, true);
         // maybe settimeout?
-        this.binder.updateMovingParameters(this.direction);
+        this.binder!.updateMovingParameters(this.direction);
         return true;
       }
       default: {
@@ -160,14 +160,14 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
       }
     }
     // Horizontal (RTL or LTR)
-    this.slider.ttb = false;
-    this.slider.rtl = this.publication.rtl;
-    if (this.slider.currentSlide % 2 && !this.slider.single)
+    this.slider!.ttb = false;
+    this.slider!.rtl = this.publication!.rtl;
+    if (this.slider!.currentSlide % 2 && !this.slider!.single)
       // Prevent getting out of track
-      this.slider.currentSlide++;
-    this.slider.resizeHandler(true);
-    this.binder.attachEvents();
-    this.binder.updateMovingParameters(this.direction);
+      this.slider!.currentSlide++;
+    this.slider!.resizeHandler(true);
+    this.binder!.attachEvents();
+    this.binder!.updateMovingParameters(this.direction);
     return true;
   }
 
@@ -198,7 +198,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
 
   oncreate(vnode: VnodeDOM<ReaderAttrs, this>) {
     let manifestPointer: unknown | string = this.config.state.loader(
-      vnode.attrs.cid
+      vnode.attrs.cid || ""
     );
     if (!manifestPointer)
       if (this.config.state.link) manifestPointer = this.config.state.link;
@@ -215,7 +215,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
     }
     this.updateStatus(t`Fetching info...`);
     this.setTitle(t`Loading...`);
-    this.publication
+    this.publication!
       .smartLoad(manifestPointer)
       .then(() => {
         this.config.state.onPublicationLoad(this);
@@ -229,7 +229,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
         this.slider = new Slider(
           this.series,
           this.publication,
-          this.binder,
+          this.binder!,
           this.config
         );
         this.binder = new Peripherals(this);
@@ -269,7 +269,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
   }
 
   view(vnode: Vnode<ReaderAttrs, this>) {
-    const sldr = vnode.state.slider;
+    const sldr = vnode.state.slider!;
     //console.log("VIEWR", vnode.state.publication, vnode.state.publication.ready);
     if (!(vnode.state.publication && vnode.state.publication.ready))
       return m(Loader, {
@@ -278,7 +278,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
     // Additional
     const bookStyle: BookStyle = {
       overflow: "hidden", //vnode.state.slider ? (vnode.state.slider.ttb ? "auto" : "hidden") : "hidden",
-      direction: sldr ? (vnode.state.slider.rtl ? "rtl" : "ltr") : "ltr",
+      direction: sldr ? (sldr.rtl ? "rtl" : "ltr") : "ltr",
       //"overflow-y": vnode.state.slider ? (vnode.state.slider.perPage === 1 ? "scroll" : "auto") : "auto", // TODO SMALLS SCREEN!
       cursor: null,
       transform: null,
@@ -329,9 +329,9 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
       m(
         "div.br__notifier",
         {
-          class: this.ui.notifierShown ? "" : "hide",
+          class: this.ui!.notifierShown ? "" : "hide",
         },
-        this.ui.notification
+        this.ui!.notification
       ),
       m(
         "div#br-main",
@@ -352,11 +352,11 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
               class: bnd ? (bnd.isPinching ? "pinching" : bookClass) : "",
               tabindex: -1, // Needed to be able to focus on this element (from peripherals)
               oncontextmenu: (e: MouseEvent) => {
-                this.ui.toggle();
+                this.ui!.toggle();
                 e.preventDefault();
               },
               ondblclick: (e: MouseEvent) => {
-                if (vnode.state.slider.ttb || !bnd) return;
+                if (sldr.ttb || !bnd) return;
                 bnd.ondblclick(e);
                 e.preventDefault();
               },
@@ -370,17 +370,17 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
             sldr.reflowable
               ? m(ReflowableSpine, {
                   slider: sldr,
-                  binder: bnd,
+                  binder: bnd!,
                   config: this.config,
-                  spine: vnode.state.publication.Spine,
+                  spine: vnode.state.publication.Spine || [],
                 })
               : m(
                   Spine,
                   {
                     slider: sldr,
-                    binder: bnd,
+                    binder: bnd!,
                   },
-                  vnode.state.publication.Spine.map((page, index) =>
+                  vnode.state.publication.Spine!.map((page, index) =>
                     m(Page, {
                       data: page,
                       key: page.Href,
@@ -390,7 +390,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
                       renderConfig: this.config.state.render as RenderConfig,
                       chooseCallback: this.config.state
                         .onSource as chooserFunction,
-                      binder: bnd,
+                      binder: bnd!,
                       blank: false,
                     })
                   )
@@ -403,7 +403,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
         {
           class:
             "br-guide__" +
-            directionToString(this.direction) +
+            directionToString(this.direction || XBReadingDirection.TTB) +
             (vnode.state.guideHidden || !vnode.state.publication.isReady
               ? " hide"
               : ""),
@@ -412,11 +412,11 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
         this.hint
       ),
     ];
-    if (this.publication.isReady && this.slider)
+    if (this.publication!.isReady && this.slider)
       rend.push(
         m(Interface, {
           reader: this,
-          model: this.ui,
+          model: this.ui!,
           slider: this.slider,
           config: this.config,
         })
