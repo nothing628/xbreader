@@ -84,7 +84,7 @@ if (workerSupported) {
           xhr = new XMLHttpRequest();
           queued.push({ src, xhr });
           xhr.open("GET", src, true);
-          // xhr.setRequestHeader("Content-Type", "image/*"); would preflight request, which is unecessary for pub resources
+          // xhr.setRequestHeader("Content-Type", "image/*"); //would preflight request, which is unecessary for pub resources
           if (e.data.modernImage)
             xhr.setRequestHeader("Accept", "image/webp,image/*,*/*;q=0.8");
           // Support WebP where available

@@ -293,7 +293,7 @@ export default class Publication {
             })
         );
       } catch (error) {
-        return this.loadFromData(item); // Object or other
+        return this.loadFromData(this.parseManifest(JSON.stringify(item))); // Object or other
       }
   }
 
