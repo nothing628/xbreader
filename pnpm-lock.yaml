@@ -11,6 +11,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.24.5
+      drmwasm:
+        specifier: github:nothing628/drmlib
+        version: https://codeload.github.com/nothing628/drmlib/tar.gz/05c157eb8037e43a8209486b0c24101d4f6c8249
       r2-utils-js:
         specifier: ^1.0.38
         version: 1.0.38
@@ -1678,6 +1681,10 @@ packages:
 
   dot-case@3.0.4:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
+
+  drmwasm@https://codeload.github.com/nothing628/drmlib/tar.gz/05c157eb8037e43a8209486b0c24101d4f6c8249:
+    resolution: {tarball: https://codeload.github.com/nothing628/drmlib/tar.gz/05c157eb8037e43a8209486b0c24101d4f6c8249}
+    version: 0.1.0
 
   duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
@@ -5419,6 +5426,8 @@ snapshots:
     dependencies:
       no-case: 3.0.4
       tslib: 2.6.2
+
+  drmwasm@https://codeload.github.com/nothing628/drmlib/tar.gz/05c157eb8037e43a8209486b0c24101d4f6c8249: {}
 
   duplexer2@0.1.4:
     dependencies:

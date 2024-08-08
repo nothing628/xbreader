@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.24.5",
+    "drmwasm": "github:nothing628/drmlib",
     "r2-utils-js": "^1.0.38",
     "tslib": "^2.6.2",
     "util": "^0.12.3"
