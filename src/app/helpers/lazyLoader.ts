@@ -2,7 +2,7 @@ import { t } from "ttag";
 import Link from "xbreader/models/Link";
 import { CVnodeDOM } from "mithril";
 import WorkerPool from "./workerPool";
-import {convertUrlToImageBitmap} from './utils'
+import { convertUrlToImageBitmap } from "./utils";
 import m from "mithril";
 import { canDrawBitmap, canWebP } from "./platform";
 import { bestImage } from "./sizer";
@@ -24,6 +24,31 @@ interface QueueElement {
 
 type LoadableElement = HTMLImageElement | HTMLCanvasElement | HTMLIFrameElement;
 
+const convertToRaw = (response: any, needRaw: boolean | number[]): string => {
+  if (typeof needRaw == "boolean" && needRaw) {
+    return URL.createObjectURL(response as Blob);
+  }
+
+  if (Array.isArray(needRaw)) {
+    const needRawSection = needRaw as number[];
+    if (needRawSection.length === 1) {
+      return URL.createObjectURL((response as Blob).slice(needRawSection[0]));
+    } else if (needRawSection.length === 2) {
+      return URL.createObjectURL(
+        (response as Blob).slice(needRawSection[0], needRawSection[1])
+      );
+    }
+  }
+
+  return "";
+};
+
+type CreateXHRParam = {
+  src: string;
+  modernImage?: boolean;
+  type?: string;
+};
+
 const offscreenCanvasSupported =
   typeof OffscreenCanvas === "undefined" ? false : true;
 const workerSupported = typeof Worker === "undefined" ? false : true;
@@ -41,6 +66,26 @@ if (workerSupported) {
       const i = locate(src);
       if (i !== -1) queued.splice(i, 1);
     };
+
+    const cancelFetch = (src: string) => {
+      const item = queued[locate(src)];
+      if (!item) return;
+      if (item.xhr) item.xhr.abort();
+      deqeue(src);
+    };
+
+    const createXhrRequest = (param: CreateXHRParam): XMLHttpRequest => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", param.src, true);
+      xhr.responseType = "blob";
+      // xhr.setRequestHeader("Content-Type", "image/*"); //would preflight request, which is unecessary for pub resources
+      if (param.modernImage)
+        xhr.setRequestHeader("Accept", "image/webp,image/*,*/*;q=0.8");
+      // Support WebP where available
+      else xhr.setRequestHeader("Accept", param.type + ",image/*,*/*;q=0.8");
+      return xhr;
+    };
+
     self.addEventListener("message", (e) => {
       const src = e.data.src;
       let xhr: XMLHttpRequest;
@@ -81,41 +126,27 @@ if (workerSupported) {
                     }
                     // Fall back to using XHR when fetch is not supported
                     */
-          xhr = new XMLHttpRequest();
+          xhr = createXhrRequest({
+            src: src,
+            modernImage: e.data.modernImage,
+            type: e.data.type,
+          });
           queued.push({ src, xhr });
-          xhr.open("GET", src, true);
-          // xhr.setRequestHeader("Content-Type", "image/*"); //would preflight request, which is unecessary for pub resources
-          if (e.data.modernImage)
-            xhr.setRequestHeader("Accept", "image/webp,image/*,*/*;q=0.8");
-          // Support WebP where available
-          else
-            xhr.setRequestHeader("Accept", e.data.type + ",image/*,*/*;q=0.8");
-          xhr.responseType = "blob";
-          xhr.onloadend = () => {
+          xhr.onloadend = function () {
             if (!isQueued(src))
               // Stop because canceled
               return;
-            if (xhr.status && xhr.status < 400) {
+            if (this.status && this.status < 400) {
               if (e.data.bitmap && "createImageBitmap" in self) {
                 // ImageBitmap supported
                 try {
-                  createImageBitmap(xhr.response as Blob).then(
+                  createImageBitmap(this.response as Blob).then(
                     (bitmap: ImageBitmap) => {
                       if (e.data.needRaw) {
-                        let url: string = "";
-                        if (e.data.needRaw === true)
-                          url = URL.createObjectURL(xhr.response);
-                        else if (Array.isArray(e.data.needRaw)) {
-                          const dat = e.data.needRaw as number[];
-                          if (dat.length === 1)
-                            url = URL.createObjectURL(
-                              (xhr.response as Blob).slice(dat[0])
-                            );
-                          else if (dat.length === 2)
-                            url = URL.createObjectURL(
-                              (xhr.response as Blob).slice(dat[0], dat[1])
-                            );
-                        }
+                        const url: string = convertToRaw(
+                          this.response,
+                          e.data.needRaw
+                        );
                         ctx.postMessage({ src, bitmap, url }, [bitmap]);
                       } else ctx.postMessage({ src, bitmap }, [bitmap]);
                     }
@@ -128,21 +159,12 @@ if (workerSupported) {
                   });
                 }
               } else {
-                const url = URL.createObjectURL(xhr.response);
+                const url = URL.createObjectURL(this.response);
                 if (e.data.needRaw) {
-                  let durl: string = "";
-                  if (e.data.needRaw === true) durl = url; // NOOP
-                  else if (Array.isArray(e.data.needRaw)) {
-                    const dat = e.data.needRaw as number[];
-                    if (dat.length === 1)
-                      durl = URL.createObjectURL(
-                        (xhr.response as Blob).slice(dat[0])
-                      );
-                    else if (dat.length === 2)
-                      durl = URL.createObjectURL(
-                        (xhr.response as Blob).slice(dat[0], dat[1])
-                      );
-                  }
+                  const durl: string = convertToRaw(
+                    this.response,
+                    e.data.needRaw
+                  );
                   ctx.postMessage({ src, url, durl });
                 } else ctx.postMessage({ src, url });
               }
@@ -159,10 +181,7 @@ if (workerSupported) {
           break;
         case "CANCEL": {
           // Cancel an item's loading
-          const item = queued[locate(src)];
-          if (!item) return;
-          if (item.xhr) item.xhr.abort();
-          deqeue(src);
+          cancelFetch(src);
           break;
         }
       }
@@ -377,7 +396,10 @@ export default class LazyLoader {
     this.drawT = requestAnimationFrame(() => {
       const cd = mel ? (this.element as HTMLCanvasElement) : this.canvas;
       if (!cd || cd instanceof HTMLImageElement) return;
-      let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
+      let ctx:
+        | CanvasRenderingContext2D
+        | OffscreenCanvasRenderingContext2D
+        | null = null;
       let tempCanvas: HTMLCanvasElement | OffscreenCanvas | null = null;
       let dctx: ImageBitmapRenderingContext | null = null;
 
@@ -504,12 +526,16 @@ export default class LazyLoader {
     requestAnimationFrame(() => this.drawAsSoon());
   }
 
-  static async drawBitmap(loader: LazyLoader, source: ImageBitmap | string, _blob?: string) {
+  static async drawBitmap(
+    loader: LazyLoader,
+    source: ImageBitmap | string,
+    _blob?: string
+  ) {
     const c = loader.canvas;
     let tmpBitmap: ImageBitmap;
 
     if (source instanceof ImageBitmap) {
-      tmpBitmap = source
+      tmpBitmap = source;
     } else {
       tmpBitmap = await convertUrlToImageBitmap(source);
     }
@@ -546,7 +572,8 @@ export default class LazyLoader {
             reject(new Error(messageEvent.data.error));
           }
           if (messageEvent.data.bitmap)
-            if (messageEvent.data.url) resolve([messageEvent.data.bitmap, messageEvent.data.url]);
+            if (messageEvent.data.url)
+              resolve([messageEvent.data.bitmap, messageEvent.data.url]);
             else resolve([messageEvent.data.bitmap]);
           else if (messageEvent.data.url) resolve([messageEvent.data.url]);
           else reject("No data received from worker!");
@@ -632,7 +659,7 @@ export default class LazyLoader {
           if (this.drawer)
             this.drawer(
               this,
-              params[0] as string,     // This will be a problem, sometimes lazy worker return url as image bitmap
+              params[0] as string, // This will be a problem, sometimes lazy worker return url as image bitmap
               params.length > 1 ? (params[1] as string) : undefined
             );
           else {
