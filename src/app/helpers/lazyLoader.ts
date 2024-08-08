@@ -24,25 +24,6 @@ interface QueueElement {
 
 type LoadableElement = HTMLImageElement | HTMLCanvasElement | HTMLIFrameElement;
 
-const convertToRaw = (response: any, needRaw: boolean | number[]): string => {
-  if (typeof needRaw == "boolean" && needRaw) {
-    return URL.createObjectURL(response as Blob);
-  }
-
-  if (Array.isArray(needRaw)) {
-    const needRawSection = needRaw as number[];
-    if (needRawSection.length === 1) {
-      return URL.createObjectURL((response as Blob).slice(needRawSection[0]));
-    } else if (needRawSection.length === 2) {
-      return URL.createObjectURL(
-        (response as Blob).slice(needRawSection[0], needRawSection[1])
-      );
-    }
-  }
-
-  return "";
-};
-
 type CreateXHRParam = {
   src: string;
   modernImage?: boolean;
@@ -65,6 +46,30 @@ if (workerSupported) {
     const deqeue = (src: string) => {
       const i = locate(src);
       if (i !== -1) queued.splice(i, 1);
+    };
+
+    const convertToRaw = (
+      response: any,
+      needRaw: boolean | number[]
+    ): string => {
+      if (typeof needRaw == "boolean" && needRaw) {
+        return URL.createObjectURL(response as Blob);
+      }
+
+      if (Array.isArray(needRaw)) {
+        const needRawSection = needRaw as number[];
+        if (needRawSection.length === 1) {
+          return URL.createObjectURL(
+            (response as Blob).slice(needRawSection[0])
+          );
+        } else if (needRawSection.length === 2) {
+          return URL.createObjectURL(
+            (response as Blob).slice(needRawSection[0], needRawSection[1])
+          );
+        }
+      }
+
+      return "";
     };
 
     const cancelFetch = (src: string) => {
@@ -564,7 +569,7 @@ export default class LazyLoader {
 
   private lazyWorker(src: string) {
     return new Promise<any[]>((resolve: Function, reject: Function) => {
-      function handler(e: Event) {
+      async function handler(e: Event) {
         const messageEvent = e as MessageEvent;
         if (messageEvent.data.src === src) {
           (e.target as Worker).removeEventListener("message", handler);

@@ -12,6 +12,9 @@ Object.keys(stringifiedConstants).forEach((c) => {
 
 module.exports = {
     mode: "development",
+    experiments: {
+        syncWebAssembly: true,
+    },
     devServer: {
         static: path.join(__dirname, "bin"),
         compress: true,
