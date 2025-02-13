@@ -7,6 +7,7 @@ import Series from "./Series";
 import Link from "./Link";
 import WorkerPool from "../helpers/workerPool";
 
+export const MAX_SCALE = 6; // 6x zoom
 export enum XBOptionType {
   Hidden,
   Radio,
@@ -497,6 +498,7 @@ export default class Config {
           onDraw: null, // (loader: any, source: any) => {} When necessary, this function provides DRM and/or custom drawing capabilities
           lok: false,
           noContext: false,
+          maxScale: MAX_SCALE,
         } as unknown as RenderConfig,
 
         // Settings provider - only need to implement for global settings

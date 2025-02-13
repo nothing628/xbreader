@@ -10,7 +10,6 @@ import Reader, { XBReadingDirection } from "xbreader/components/Reader";
 import Slider from "xbreader/models/Slider";
 import Ui, { DialogData } from "xbreader/models/Ui";
 
-const MAX_SCALE = 6; // 6x zoom
 const SCROLL_COOLDOWN = 200; // Faster would be 25
 
 export enum WheelState {
@@ -62,6 +61,7 @@ export default class Peripherals {
   private readonly reader: Reader;
   private PreviousWheels: Wheel[] = [];
   private PreviousCoord: Point = { X: 0, Y: 0 };
+  private maxScale: number;
   isDragging = false;
   isPinching = false;
   private pointerDown = false;
@@ -134,11 +134,13 @@ export default class Peripherals {
     "onmessage",
   ];
 
-  constructor(Reader: Reader) {
-    this.slider = Reader.slider!;
-    this.ui = Reader.ui!;
-    this.reader = Reader;
+  constructor(reader: Reader) {
+    this.slider = reader.slider!;
+    this.ui = reader.ui!;
+    this.reader = reader;
     this.coordinator = new Coordinator();
+
+    this.maxScale = reader.config.state.render.maxScale;
 
     this.updateKeyCodes(["keydown", "keyup", "keypress"], {
       32: "Space",
@@ -189,7 +191,7 @@ export default class Peripherals {
       72: "H", // Direction toggle
     });
 
-    this.updateMovingParameters(Reader.direction!);
+    this.updateMovingParameters(reader.direction!);
 
     // Bind all event handlers for referencability
     this.handlers.forEach((method) => {
@@ -408,7 +410,7 @@ export default class Peripherals {
       if (this.pinch.touchN < 4) return;
       let newScale =
         (currentDistance / this.pinch.startDistance) * this.slider.zoomer.scale;
-      if (newScale >= MAX_SCALE) newScale = MAX_SCALE;
+      if (newScale >= this.maxScale) newScale = this.maxScale;
       if (newScale <= 1.1) newScale = 1;
       // const center = this.coordinator.getTouchCenter(e);
       this.slider.zoomer = {
@@ -914,7 +916,7 @@ export default class Peripherals {
               X: window.innerWidth / 2,
               Y: window.innerHeight / 2,
             };
-          if (this.slider.zoomer.scale < MAX_SCALE)
+          if (this.slider.zoomer.scale < this.maxScale)
             this.slider.zoomer.scale += 0.5; // Gets slower as you zoom in more due to decreasing ratio impact
           break;
         }

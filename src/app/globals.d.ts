@@ -60,6 +60,7 @@ interface XBRenderConfig {
   // eslint-disable-next-line @typescript-eslint/ban-types
   onDraw: Function;
   lok: boolean;
+  maxScale: number;
 }
 
 interface XBConfig {

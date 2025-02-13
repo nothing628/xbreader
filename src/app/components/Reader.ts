@@ -380,7 +380,7 @@ export default class Reader implements ClassComponent<ReaderAttrs> {
                     slider: sldr,
                     binder: bnd!,
                   },
-                  vnode.state.publication.Spine!.map((page, index) =>
+                  vnode.state.publication.Spine!.map((page: any, index: number) =>
                     m(Page, {
                       data: page,
                       key: page.Href,
