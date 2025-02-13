@@ -1,14 +1,6 @@
 /* eslint-disable no-var */
 /* disable ttag */
 
-import("drmwasm").then(mod => {
-    get_replacement_jpeg = mod.get_replacement_jpeg;
-    get_replacement_webp = mod.get_replacement_webp;
-});
-
-let get_replacement_jpeg;
-let get_replacement_webp;
-
 // Checks compatibility and loads XBReader in the appropriate language
 // WARNING: Do not use modern ECMAScript syntax in this file to be safe!
 
@@ -773,7 +765,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     if (url && URL.canParse(url)) {
                         try {
-                            const parsedUrl = URL.parse(url);
                             const response = await fetch(url);
                             const body = await response.arrayBuffer();
                             const uintBlob = new Uint8Array(body);
