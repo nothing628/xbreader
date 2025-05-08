@@ -776,10 +776,10 @@ export default class Peripherals {
                 this.slider.next(this.slider.perPage);
                 
             } else if (MovingParameter === -1) {
-                if(this.slider.single && !this.slider.ttb && this.coordinator.HTML.scrollTop > 5) {
-                    this.attemptScrollTo(0);
-                    return;
-                }
+                // if(this.slider.single && !this.slider.ttb && this.coordinator.HTML.scrollTop > 5) {
+                //     this.attemptScrollTo(0);
+                //     return;
+                // }
 
                 this.slider.prev(this.slider.perPage);
             }
