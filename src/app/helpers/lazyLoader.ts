@@ -208,7 +208,7 @@ export type drawerFunction = (
   source: ImageBitmap | string,
   blob?: string
 ) => void;
-export type chooserFunction = (link: Link) => Link;
+export type ChooserFunction = (link: Link) => Link;
 export type errorFunction = (err: Error) => void;
 
 const svgStatusGenerator = (

@@ -2,7 +2,7 @@ import { t } from "ttag";
 import m, { CVnode, ClassComponent } from "mithril";
 import Slider, { DEFAULT_MARGIN } from "xbreader/models/Slider";
 import Peripherals from "xbreader/helpers/peripherals";
-import { chooserFunction, worker } from "xbreader/helpers/lazyLoader";
+import { ChooserFunction, worker } from "xbreader/helpers/lazyLoader";
 import ReflowablePage from "./ReflowablePage";
 import Link from "../models/Link";
 import Skeleton from "../partials/Skeleton";
@@ -36,7 +36,6 @@ const SEPARATE_ELEMENTS = ["IMG", "IMAGE", "PICTURE"];
 export default class ReflowableSpine
   implements ClassComponent<ReflowableSpineAttrs>
 {
-  loaded = false;
   dats: PData[] = [];
 
   oninit({ attrs }: CVnode<ReflowableSpineAttrs>) {
@@ -218,7 +217,7 @@ export default class ReflowableSpine
                 slider: slider,
                 renderConfig: attrs.config.state.render as RenderConfig,
                 chooseCallback: attrs.config.state
-                  .onSource as unknown as chooserFunction,
+                  .onSource as unknown as ChooserFunction,
                 binder: binder,
                 blank: false,
               })

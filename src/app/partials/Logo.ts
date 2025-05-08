@@ -23,7 +23,9 @@ export default {
         ]
       );
     }
+    
     if (!attrs.brand.name || !attrs.brand.logo) return null;
+
     return m(
       "a.logo",
       {

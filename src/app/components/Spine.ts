@@ -15,6 +15,7 @@ export default class Spine implements ClassComponent<SpineAttrs> {
     const slider = attrs.slider;
     const binder = attrs.binder;
     if (!slider) return null;
+
     return m(
       "div#br-spine.fixed" + (slider.single ? ".single" : ".double"),
       {

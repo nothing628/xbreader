@@ -62,21 +62,8 @@ export default class Coordinator {
     ) {
       Coord.X -= this.HTML.scrollLeft + this.Body.scrollLeft;
       Coord.Y -= this.HTML.scrollTop + this.Body.scrollTop;
-    } else {
-      // var Item = Eve.target.ownerDocument.documentElement.Item;
-      // ItemCoord = this.getElementCoord(Item);
-      // if (!Item.PrePaginated && !Item.Outsourcing)
-      //   (ItemCoord.X += settings.S["item-padding-left"]),
-      //     (ItemCoord.Y += settings.S["item-padding-top"]);
-      // Coord.X =
-      //   (Coord.X + ItemCoord.X - R.Main.scrollLeft) *
-      //     R.Main.Transformation.Scale +
-      //   R.Main.Transformation.Translation.X;
-      // Coord.Y =
-      //   (Coord.Y + ItemCoord.Y - R.Main.scrollTop) *
-      //     R.Main.Transformation.Scale +
-      //   R.Main.Transformation.Translation.Y;
     }
+    
     return Coord;
   }
 

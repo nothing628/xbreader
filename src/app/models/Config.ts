@@ -206,30 +206,6 @@ const DEFAULT_SETTINGS: XBSetting[] = [
       },
     ],
   },
-  /*,
-    {
-        title: "Direction",
-        description: "Override the reading direction with one you prefer (vertical content will always be vertical)",
-        name: "direction",
-        value: "auto",
-        options: [
-            {
-                label: "Auto",
-                description: "As set by the publisher",
-                value: "auto"
-            },
-            {
-                label: "Horizontal",
-                description: "Typically used for comics/manga",
-                value: "horizontal"
-            },
-            {
-                label: "Vertical",
-                description: "Typically used for webtoons",
-                value: "vertical"
-            }
-        ]
-    }*/
 ];
 
 export interface RenderConfig {

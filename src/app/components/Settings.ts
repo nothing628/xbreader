@@ -160,6 +160,7 @@ export default class Settings implements ClassComponent<SettingsAttrs> {
                     attrs.ui.notify(t`Settings saved!`);
                   else attrs.ui.notify(t`Failed saving settings`);
                 };
+                
                 return m("div.br-form__input", [
                   m(
                     "div.br-form__input-label" +
