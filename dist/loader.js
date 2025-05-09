@@ -1,0 +1,2 @@
+!function(){var n=["en","ja","de","fr"];function e(){if("string"!=typeof(navigator.browserLanguage||navigator.language||navigator.userLanguage))return"en";var e=navigator.language.split("-")[0];return-1!==n.indexOf(e)?e:"en"}document.addEventListener("DOMContentLoaded",(function(){var n=document.createElement("script"),a=e();n.src="en"===a?"xbreader.js?v=0.37.0-1746770961365":"xbreader-"+e()+".js?v=0.37.0-1746770961365",document.head.appendChild(n),n.onload=function(){window.xbreader(window.xbconfig)}}))}();
+//# sourceMappingURL=loader.js.map

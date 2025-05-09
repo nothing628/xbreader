@@ -65,7 +65,6 @@ typings/
 static/
 tmp/
 bin/*
-dist/*
 *.old
 *.php
 stats.json
