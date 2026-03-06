@@ -1,8 +1,10 @@
+@use "../common.scss" as common;
+
 div#br-topbar {
     visibility: visible !important;
     height: 72px;
     flex-direction: row;
-    color: $primaryForeground;
+    color: common.$primaryForeground;
     display: flex;
     position: fixed;
     justify-content: space-between;
@@ -10,7 +12,7 @@ div#br-topbar {
     width: 100%;
     top: 0;
     left: 0;
-    z-index: $z-index_menu;
+    z-index: common.$z-index_menu;
 
     &.hidden {
         top: -72px;
@@ -51,7 +53,7 @@ div#br-topbar {
                 font-size: 34px;
             }
 
-            @include hover();
+            @include common.hover();
         }
     }
 
@@ -112,13 +114,13 @@ div#br-topbar {
         // border: none;
 
         &:hover {
-            //color: rgba($secondaryForeground, 0.9);
+            //color: rgba(common.$secondaryForeground, 0.9);
             text-decoration: underline;
         }
 
         & option, & optgroup {
-            color: $secondaryForeground;
-            background: $secondaryBackground;
+            color: common.$secondaryForeground;
+            background: common.$secondaryBackground;
             -o-text-overflow: ellipsis;
             text-overflow: ellipsis;
         }
@@ -239,7 +241,7 @@ div#br-topbar, .br-topbar__section {
         padding: 0;
         margin: 0;
         height: auto;
-        background: $primaryBackground;
+        background: common.$primaryBackground;
         &.sgone {
             display: none;
         }

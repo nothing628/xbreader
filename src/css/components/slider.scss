@@ -1,5 +1,8 @@
-$colorTrack: darken($secondaryBackground, 20%) !default;
-$colorThumb: lighten($secondaryForeground, 10%) !default;
+@use "../common.scss" as common;
+@use "sass:color";
+
+$colorTrack: color.adjust(common.$secondaryBackground, $lightness: -20%) !default;
+$colorThumb: color.adjust(common.$secondaryForeground, $lightness: 10%) !default;
 $h: 1.2em;
 $w: calc(100% - 160px);
 
@@ -22,7 +25,7 @@ $w: calc(100% - 160px);
     margin-left: .05em;
     cursor: pointer;
 
-    @include hover();
+    @include common.hover();
 
     &:active {
         box-shadow: 1px 1px 3px 0 rgba(0,0,0,.8);
@@ -83,7 +86,7 @@ $w: calc(100% - 160px);
         padding: 0 16px;
 
         & a {
-            color: $secondaryForeground;
+            color: common.$secondaryForeground;
         }
     }
     
@@ -102,7 +105,7 @@ $w: calc(100% - 160px);
         &:before {
             //left: 4px;
             margin-left: -12px;
-            border-right-color: darken($colorTrack, 30%);
+            border-right-color: color.adjust($colorTrack, $lightness: -30%);
         }
     }
 
@@ -112,13 +115,13 @@ $w: calc(100% - 160px);
         &:before {
             //right: 4px;
             margin-left: 30px; // TODO fine-tune sync with lgo
-            border-left-color: darken($colorTrack, 30%);
+            border-left-color: color.adjust($colorTrack, $lightness: -30%);
         }
     }
     
     &__pagenum, &__pagenum-last {
         font-size: 10px;
-        color: darken($colorTrack, 50%);
+        color: color.adjust($colorTrack, $lightness: -50%);
         margin-top: 4px;
     }
     

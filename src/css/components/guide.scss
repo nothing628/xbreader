@@ -1,21 +1,21 @@
-
+@use "../common.scss" as common;
 
 .br-guide {
     position: fixed;
-    width: $guide-size;
-    height: $guide-size;
+    width: common.$guide-size;
+    height: common.$guide-size;
     top: 50%;
     left: 50%;
-    margin: calc(1*-1*$guide-size/2) 0 0 calc(1*-1*$guide-size/2);
-    padding-top: $guide-size - 25;
+    margin: calc(1 * -1 * common.$guide-size/2) 0 0 calc(1 * -1 * common.$guide-size/2);
+    padding-top: common.$guide-size - 25;
     box-sizing: border-box;
     font-size: 12px;
     text-align: center;
-    color: $primaryForeground;
-    border: 1px solid $tertiaryBackground;
+    color: common.$primaryForeground;
+    border: 1px solid common.$tertiaryBackground;
     border-radius: 4px;
     z-index: 1000;
-    background-color: rgba($primaryBackground, 0.95);//rgba(0, 0, 0, 0.95);//rgba($primaryBackground, 0.95);
+    background-color: rgba(common.$primaryBackground, 0.95);//rgba(0, 0, 0, 0.95);//rgba(common.$primaryBackground, 0.95);
     background-repeat: no-repeat;
     background-position: center 10px;
     pointer-events: none;

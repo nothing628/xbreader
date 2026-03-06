@@ -1,3 +1,5 @@
+@use "../common.scss" as common;
+
 div#br-botbar {
     box-sizing: border-box;
     display: flex;
@@ -38,13 +40,13 @@ div.br-botbar-controls {
     justify-content: center;
     & button {
         cursor: pointer;
-        background: $primaryBackground;
+        background: common.$primaryBackground;
         margin: 0 5px;
         height: 38px;
         width: 38px;
         box-shadow: 0 -3px 0 0 rgba(0,0,0,.4) inset;
         border-radius: 3px;
-        border: 1px solid $primaryForeground;
+        border: 1px solid common.$primaryForeground;
         outline: none;
 
         & i {
@@ -52,7 +54,7 @@ div.br-botbar-controls {
             font-size: 34px;
         }
 
-        @include hover();
+        @include common.hover();
 
         &:active {
             box-shadow: 0 -1px 0 0 rgba(0,0,0,.4) inset;

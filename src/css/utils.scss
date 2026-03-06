@@ -1,11 +1,13 @@
+@use "./common.scss" as common;
+
 .noselect {
     -webkit-touch-callout: none;
-    @include prefix("user-select", none);
+    @include common.prefix("user-select", none);
 }
 
 .noget {
-    @include prefix("user-drag", none);
-    @include prefix("pointer-events", none);
+    @include common.prefix("user-drag", none);
+    @include common.prefix("pointer-events", none);
 }
 
 .etext {

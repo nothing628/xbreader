@@ -1,7 +1,9 @@
+@use "../common.scss" as common;
+
 .spinner {
     width: 40px;
     height: 40px;
-    background-color: $tertiaryForeground;
+    background-color: common.$tertiaryForeground;
     position: absolute;
     left: 0;
     right: 0;

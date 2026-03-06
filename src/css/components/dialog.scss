@@ -1,5 +1,8 @@
+@use "../common.scss" as common;
+@use "sass:color";
+
 @mixin br-dialog-clickable {
-    border: 1px solid $primaryForeground;
+    border: 1px solid common.$primaryForeground;
     transition: all .1s ease;
     border-radius: 3px;
     cursor: pointer;
@@ -11,14 +14,14 @@
     width: auto;
     max-width: 500px;
     height: auto;
-    background: rgba($color: $primaryBackground, $alpha: 0.95);
-    border: 1px solid $primaryForeground;
+    background: rgba($color: common.$primaryBackground, $alpha: 0.95);
+    border: 1px solid common.$primaryForeground;
     border-radius: 1px;
     padding: 15px;
     margin: auto;
-    margin-top: $top-bar-height + 20px;
+    margin-top: common.$top-bar-height + 20px;
     display: inline-block;
-    z-index: $z-index_menu + 1;
+    z-index: common.$z-index_menu + 1;
 
     @media (max-width: 600px) {
         margin-top: 20px;
@@ -62,10 +65,10 @@
     &__action {
         margin: 0 5px;
         padding: 5px;
-        background: darken($primaryBackground, 10%);
-        color: $primaryForeground;
+        background: color.adjust(common.$primaryBackground, $lightness: -10%);
+        color: common.$primaryForeground;
         flex: auto;
-        @include shadow_hover;
+        @include common.shadow_hover;
     }
 
     &__container {
@@ -76,7 +79,7 @@
         right: 0;
         bottom: 0;
         left: 0;
-        z-index: $z-index_menu;
+        z-index: common.$z-index_menu;
         overflow-x: hidden;
         overflow-y: auto;
         text-align: center;
@@ -118,8 +121,8 @@
                 }
 
                 &.positive, &.negative {
-                    @include hover;
-                    background: $primaryBackground;
+                    @include common.hover;
+                    background: common.$primaryBackground;
                     text-rendering: optimizeLegibility;
                     -webkit-font-smoothing: antialiased;
                     font-weight: lighter;
@@ -130,8 +133,8 @@
                     line-height: 0;
 
                     &:active {
-                        color: $tertiaryForeground;
-                        background-color: $tertiaryBackground;
+                        color: common.$tertiaryForeground;
+                        background-color: common.$tertiaryBackground;
                     }
                 }
 
@@ -148,19 +151,19 @@
                 font-size: inherit;
                 padding: 9px 8px 9px 8px;
                 @include br-dialog-clickable;
-                @include hover;
+                @include common.hover;
             }
 
             &-radio {
                 display: inline-flex;
                 white-space: nowrap;
-                background-color: $primaryBackground;
+                background-color: common.$primaryBackground;
                 border-radius: 3px;
                 overflow: hidden;
 
                 &__input:checked + label {
-                    color: $secondaryBackground;
-                    background-color: lighten($secondaryForeground, 20%);
+                    color: common.$secondaryBackground;
+                    background-color: color.adjust(common.$secondaryForeground, $lightness: 20%);
                 }
 
                 &__input {
@@ -171,11 +174,11 @@
                     padding: 9px 8px 9px 8px;
                     @include br-dialog-clickable;
                     border-radius: 0; // Override clickable style
-                    @include shadow_hover;
+                    @include common.shadow_hover;
 
                     &:active {
-                        color: $tertiaryForeground;
-                        background-color: $tertiaryBackground;
+                        color: common.$tertiaryForeground;
+                        background-color: common.$tertiaryBackground;
                     }
                 }
             }
