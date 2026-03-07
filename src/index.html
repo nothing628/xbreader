@@ -1,24 +1,82 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
     <meta name="format-detection" content="telephone=no, email=no" />
     <meta name="google" content="notranslate" />
-     <meta name="apple-mobile-web-app-capable" content="yes" />
-     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-     <meta name="theme-color" content="#212121" /> 
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="theme-color" content="#212121" />
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" crossorigin="anonymous">
     <script crossorigin="anonymous" src="https://polyfill.io/v3/polyfill.min.js?features=Array.from%2CURL"></script>
 </head>
+
 <body>
-    <noscript class="br__notifier">To use this reader, please enable JavaScript!</noscript>
-    <div class="br-loader__container">
-        <div class="spinner" id="br-loader__spinner"></div>
-        <span id="br-loader__message">Loading assets...</span>
+    <script>
+        window.xbconfig = {
+            mount: document.getElementById("xb-domain"),
+            brand: {
+                name: "J18",
+            },
+            tabs: [
+                {
+                    title: "Discover",
+                    href: "/",
+                    icon: "list",
+                }
+            ],
+            loader: async (id) => {
+                const manifest = {
+                    "@context": "https://readium.org/webpub-manifest/context.jsonld",
+                    metadata: {
+                        '@type': 'https://schema.org/ComicIssue',
+                        title: "",
+                        subtitle: "",
+                        author: "",
+                        language: "en",
+                        numberOfPages: 0,
+                        identifier: id,
+                    },
+                    readingOrder: [
+                        {
+                            id: "1",
+                            href: "",
+                            width: 900,
+                            height: 1400,
+                            type: ""
+                        }
+                    ],
+                    links: [
+                        {
+                            rel: "self",
+                            href: "",
+                            type: "application/divina+json"
+                        }
+                    ],
+                }
+
+                console.log(id, manifest);
+                return manifest;
+            }
+
+        }
+    </script>
+
+    <div id="xb-domain">
+        <noscript class="br__notifier">To use this reader, please enable JavaScript!</noscript>
+        <div class="br-loader__container">
+            <div id="br-loader__spinner" class="spinner"></div>
+            <span id="br-loader__message">Loading assets...</span>
+        </div>
     </div>
 </body>
+
 </html>
