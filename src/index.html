@@ -34,37 +34,10 @@
                 }
             ],
             loader: async (id) => {
-                const manifest = {
-                    "@context": "https://readium.org/webpub-manifest/context.jsonld",
-                    metadata: {
-                        '@type': 'https://schema.org/ComicIssue',
-                        title: "",
-                        subtitle: "",
-                        author: "",
-                        language: "en",
-                        numberOfPages: 0,
-                        identifier: id,
-                    },
-                    readingOrder: [
-                        {
-                            id: "1",
-                            href: "",
-                            width: 900,
-                            height: 1400,
-                            type: ""
-                        }
-                    ],
-                    links: [
-                        {
-                            rel: "self",
-                            href: "",
-                            type: "application/divina+json"
-                        }
-                    ],
-                }
+                const manifestResponse = await fetch('/manifest.json');
+                const manifestJson = await manifestResponse.json();
 
-                console.log(id, manifest);
-                return manifest;
+                return manifestJson;
             }
 
         }

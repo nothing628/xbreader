@@ -65,6 +65,7 @@ typings/
 static/
 tmp/
 bin/*
+!bin/manifest.json
 dist/*
 *.old
 *.php
