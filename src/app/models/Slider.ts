@@ -32,7 +32,6 @@ export default class Slider {
     public rlength = 0;
     currentSlide = 0;
     _fraction = 0;
-    ignoreScrollFlag = false;
     br_spine: HTMLElement;
     rtl: boolean;
     ttb = false;
